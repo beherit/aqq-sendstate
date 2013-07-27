@@ -1,3 +1,7 @@
+1.2.1.0
+-----
+* Drobne poprawki w procesie wy³adowania wtyczki.
+
 1.2.0.0
 -----
 * Wys³any opis ustawiany jest w koñcu na ca³y czas trwania sesji!
