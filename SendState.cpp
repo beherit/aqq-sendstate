@@ -141,6 +141,9 @@ void PrzypiszSkrot()
 
 void SendXML(UnicodeString JID, int State, UnicodeString Status, int UserIdx)
 {
+  if(Status!="")
+   Status = (wchar_t*)(PluginLink.CallService(AQQ_FUNCTION_CONVERTTOXML,0,(WPARAM)Status.w_str()));
+
   UnicodeString XML;
   UnicodeString ShowType;
 
@@ -193,7 +196,7 @@ extern "C" __declspec(dllexport) PPluginInfo __stdcall AQQPluginInfo(DWORD AQQVe
 {
   PluginInfo.cbSize = sizeof(TPluginInfo);
   PluginInfo.ShortName = (wchar_t*)L"SendState";
-  PluginInfo.Version = PLUGIN_MAKE_VERSION(1,0,0,0);
+  PluginInfo.Version = PLUGIN_MAKE_VERSION(1,0,0,2);
   PluginInfo.Description = (wchar_t *)L"Indywidualny status/opis dla kontaktów jabber";
   PluginInfo.Author = (wchar_t *)L"Krzysztof Grochocki (Beherit)";
   PluginInfo.AuthorMail = (wchar_t *)L"sirbeherit@gmail.com";
