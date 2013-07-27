@@ -1,3 +1,9 @@
+1.1.2.0
+-----
+* Obs³uga natywnego stylu Windows (wy³¹czone skórkowanie okien wtyczki).
+* Aktualizacja komponentów AlphaControls do najnowszej dostêpnej wersji (7.60).
+* Inne mniej wa¿ne poprawki.
+
 1.1.0.0
 -----
 * Pe³ne skórkowanie okna wtyczki.

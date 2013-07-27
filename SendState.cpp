@@ -29,10 +29,7 @@ TCustomIniFile* ChangedStateList = new TMemIniFile(ChangeFileExt(Application->Ex
 //Pobieranie sciezki do skorki kompozycji
 UnicodeString GetThemeSkinDir()
 {
-  UnicodeString Dir = (wchar_t*)(PluginLink.CallService(AQQ_FUNCTION_GETTHEMEDIR,0,0));
-  Dir = StringReplace(Dir, "\\", "\\\\", TReplaceFlags() << rfReplaceAll);
-  Dir = Dir + "\\\\Skin";
-  return Dir;
+  return StringReplace((wchar_t*)(PluginLink.CallService(AQQ_FUNCTION_GETTHEMEDIR,0,0)), "\\", "\\\\", TReplaceFlags() << rfReplaceAll) + "\\\\Skin";
 }
 //---------------------------------------------------------------------------
 
@@ -47,6 +44,20 @@ bool ChkSkinEnabled()
   UnicodeString AlphaSkinsEnabled = Settings->ReadString("Settings","UseSkin","1");
   delete Settings;
   return StrToBool(AlphaSkinsEnabled);
+}
+//---------------------------------------------------------------------------
+
+//Sprawdzanie czy wlaczony jest natywny styl Windows
+bool ChkNativeEnabled()
+{
+  TStrings* IniList = new TStringList();
+  IniList->SetText((wchar_t*)(PluginLink.CallService(AQQ_FUNCTION_FETCHSETUP,0,0)));
+  TMemIniFile *Settings = new TMemIniFile(ChangeFileExt(Application->ExeName, ".INI"));
+  Settings->SetStrings(IniList);
+  delete IniList;
+  UnicodeString NativeEnabled = Settings->ReadString("Settings","Native","0");
+  delete Settings;
+  return StrToBool(NativeEnabled);
 }
 //---------------------------------------------------------------------------
 
@@ -91,9 +102,7 @@ int GetChangedState(UnicodeString JID, int UserIdx)
 //Pobieranie sciezki ikony z interfejsu AQQ
 UnicodeString GetIconPath(int Icon)
 {
-  UnicodeString IconPath = (wchar_t*)(PluginLink.CallService(AQQ_FUNCTION_GETPNG_FILEPATH,Icon,0));
-  IconPath = StringReplace(IconPath, "\\", "\\\\", TReplaceFlags() << rfReplaceAll);
-  return IconPath;
+  return StringReplace((wchar_t*)(PluginLink.CallService(AQQ_FUNCTION_GETPNG_FILEPATH,Icon,0)), "\\", "\\\\", TReplaceFlags() << rfReplaceAll);
 }
 //--------------------------------------------------------------------------
 
@@ -153,8 +162,8 @@ int __stdcall SendStateService (WPARAM, LPARAM)
   TSendForm * hSendForm = new TSendForm(Application);
   hSendForm->JID = ContactJID;
   hSendForm->UserIdx = ContactUserIdx;
-  hSendForm->StatusMemo->Text = GetChangedStatus(ContactJID, ContactUserIdx);//GetStatus(ContactUserIdx);
-  hSendForm->StateComboBox->ItemIndex = GetChangedState(ContactJID, ContactUserIdx);//GetState(ContactUserIdx);
+  hSendForm->StatusMemo->Text = GetChangedStatus(ContactJID, ContactUserIdx);
+  hSendForm->StateComboBox->ItemIndex = GetChangedState(ContactJID, ContactUserIdx);
   hSendForm->ShowModal();
   delete hSendForm;
 
@@ -192,6 +201,8 @@ void BuildSendStateButton()
 
   PluginLink.CallService(AQQ_CONTROLS_CREATEPOPUPMENUITEM,0,(LPARAM)(&SendStateButton));
   PluginLink.CreateServiceFunction(L"aSendStateService",SendStateService);
+
+  ChangeButtonState(false);
 }
 //---------------------------------------------------------------------------
 
@@ -199,17 +210,24 @@ void BuildSendStateButton()
 int __stdcall OnSystemPopUp (WPARAM wParam, LPARAM lParam)
 {
   PopUp = (PPluginPopUp)lParam;
-  UnicodeString PopUpName = PopUp->Name;
+  UnicodeString PopUpName = (wchar_t*)PopUp->Name;
   if(PopUpName=="muItem")
   {
 	Contact = (PPluginContact)wParam;
-	ContactJID = Contact->JID;
-	ContactUserIdx = Contact->UserIdx;
-
-	if(!ContactJID.Pos("@plugin.gg"))
+	ContactJID = (wchar_t*)Contact->JID;
+	if((!Contact->FromPlugin)&&
+	 (!ContactJID.Pos("@gg."))&&
+	 (!ContactJID.Pos("@gadu-gadu."))&&
+	 (!ContactJID.Pos("@icq."))&&
+	 (!ContactJID.Pos("@aim."))&&
+	 (!ContactJID.Pos("@msn."))&&
+	 (!ContactJID.Pos("@irc."))&&
+	 (!ContactJID.Pos("@yahoo."))&&
+	 (!ContactJID.Pos("@skype.")))
 	{
-	  if(Contact->Resource!="") ContactJID = ContactJID + "/" + Contact->Resource;
-      ChangeButtonState(true);
+	  if(Contact->Resource!="") ContactJID = ContactJID + "/" + (wchar_t*)Contact->Resource;
+	  ContactUserIdx = Contact->UserIdx;
+	  ChangeButtonState(true);
 	}
 	else
 	 ChangeButtonState(false);
@@ -249,7 +267,7 @@ extern "C" __declspec(dllexport) PPluginInfo __stdcall AQQPluginInfo(DWORD AQQVe
 {
   PluginInfo.cbSize = sizeof(TPluginInfo);
   PluginInfo.ShortName = L"SendState";
-  PluginInfo.Version = PLUGIN_MAKE_VERSION(1,1,0,0);
+  PluginInfo.Version = PLUGIN_MAKE_VERSION(1,1,2,0);
   PluginInfo.Description = L"Indywidualny status dla kontaktów Jabber";
   PluginInfo.Author = L"Krzysztof Grochocki (Beherit)";
   PluginInfo.AuthorMail = L"kontakt@beherit.pl";

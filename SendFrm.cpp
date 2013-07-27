@@ -18,6 +18,7 @@ TSendForm *SendForm;
 //---------------------------------------------------------------------------
 __declspec(dllimport)UnicodeString GetThemeSkinDir();
 __declspec(dllimport)bool ChkSkinEnabled();
+__declspec(dllimport)bool ChkNativeEnabled();
 __declspec(dllimport)void SendXML(UnicodeString JID, int State, UnicodeString Status, int UserIdx);
 __declspec(dllimport)UnicodeString GetIconPath(int Icon);
 bool IconsChange = false;
@@ -54,7 +55,7 @@ void __fastcall TSendForm::FormShow(TObject *Sender)
   if(!ChkSkinEnabled())
   {
 	UnicodeString ThemeSkinDir = GetThemeSkinDir();
-	if(FileExists(ThemeSkinDir + "\\\\Skin.asz"))
+	if((FileExists(ThemeSkinDir + "\\\\Skin.asz"))&&(!ChkNativeEnabled()))
 	{
 	  ThemeSkinDir = StringReplace(ThemeSkinDir, "\\\\", "\\", TReplaceFlags() << rfReplaceAll);
 	  sSkinManager->SkinDirectory = ThemeSkinDir;
@@ -77,7 +78,7 @@ void __fastcall TSendForm::FormCreate(TObject *Sender)
   if(ChkSkinEnabled())
   {
 	UnicodeString ThemeSkinDir = GetThemeSkinDir();
-	if(FileExists(ThemeSkinDir + "\\\\Skin.asz"))
+	if((FileExists(ThemeSkinDir + "\\\\Skin.asz"))&&(!ChkNativeEnabled()))
 	{
 	  ThemeSkinDir = StringReplace(ThemeSkinDir, "\\\\", "\\", TReplaceFlags() << rfReplaceAll);
 	  sSkinManager->SkinDirectory = ThemeSkinDir;
