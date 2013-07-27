@@ -1,24 +1,22 @@
 //---------------------------------------------------------------------------
 #ifndef SendFrmH
 #define SendFrmH
+#define WM_ALPHAWINDOWS (WM_USER + 666)
 //---------------------------------------------------------------------------
-#include <ActnList.hpp>
-#include <Classes.hpp>
-#include <Controls.hpp>
-#include <ImgList.hpp>
-#include <StdCtrls.hpp>
-#include <ExtCtrls.hpp>
-#include <ComCtrls.hpp>
+#include "acAlphaImageList.hpp"
+#include "sButton.hpp"
+#include "sComboBox.hpp"
+#include "sMemo.hpp"
 #include "sSkinManager.hpp"
 #include "sSkinProvider.hpp"
-#include "sButton.hpp"
-#include "sMemo.hpp"
-#include "sComboBoxes.hpp"
-#include "acAlphaImageList.hpp"
-#include "sComboBox.hpp"
-#include <System.Actions.hpp>
 #include "sSpeedButton.hpp"
+#include <System.Actions.hpp>
+#include <System.Classes.hpp>
+#include <Vcl.ActnList.hpp>
 #include <Vcl.Buttons.hpp>
+#include <Vcl.Controls.hpp>
+#include <Vcl.ImgList.hpp>
+#include <Vcl.StdCtrls.hpp>
 //---------------------------------------------------------------------------
 class TSendForm : public TForm
 {
@@ -46,6 +44,10 @@ public:		// User declarations
 	UnicodeString JID;
 	int UserIdx;
 	__fastcall TSendForm(TComponent* Owner);
+	void __fastcall WMTransparency(TMessage &Message);
+	BEGIN_MESSAGE_MAP
+	MESSAGE_HANDLER(WM_ALPHAWINDOWS,TMessage,WMTransparency);
+	END_MESSAGE_MAP(TForm)
 };
 //---------------------------------------------------------------------------
 extern PACKAGE TSendForm *SendForm;
