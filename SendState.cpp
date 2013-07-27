@@ -13,28 +13,52 @@ int WINAPI DllEntryPoint(HINSTANCE hinst, unsigned long reason, void* lpReserved
 }
 //--------------------------------------------------------------------------
 
-TPluginAction PluginAction;
+//Struktury glowne
 TPluginLink PluginLink;
 TPluginInfo PluginInfo;
+TPluginAction SendStateButton;
 TPluginActionEdit PluginActionEdit;
 TPluginStateChange PluginStateChange;
-
 PPluginPopUp PopUp;
 PPluginContact Contact;
-
-UnicodeString PopUpName;
+//Zmienne globalne
 UnicodeString ContactJID;
 int ContactUserIdx;
+TCustomIniFile* ChangedStateList = new TMemIniFile(ChangeFileExt(Application->ExeName, ".INI"));
 
-UnicodeString GetStatus(int UserIdx)
+//Pobieranie sciezki do skorki kompozycji
+UnicodeString GetThemeSkinDir()
 {
-  UnicodeString Status;
-  PluginLink.CallService(AQQ_FUNCTION_GETNETWORKSTATE,(WPARAM)(&PluginStateChange),UserIdx);
-  Status = (wchar_t*)PluginStateChange.Status;
-  return Status;
+  UnicodeString Dir = (wchar_t*)(PluginLink.CallService(AQQ_FUNCTION_GETTHEMEDIR,0,0));
+  Dir = StringReplace(Dir, "\\", "\\\\", TReplaceFlags() << rfReplaceAll);
+  Dir = Dir + "\\\\Skin";
+  return Dir;
 }
 //---------------------------------------------------------------------------
 
+//Sprawdzanie czy wlaczona jest obsluga stylow obramowania okien
+bool ChkSkinEnabled()
+{
+  TStrings* IniList = new TStringList();
+  IniList->SetText((wchar_t*)(PluginLink.CallService(AQQ_FUNCTION_FETCHSETUP,0,0)));
+  TMemIniFile *Settings = new TMemIniFile(ChangeFileExt(Application->ExeName, ".INI"));
+  Settings->SetStrings(IniList);
+  delete IniList;
+  UnicodeString AlphaSkinsEnabled = Settings->ReadString("Settings","UseSkin","1");
+  delete Settings;
+  return StrToBool(AlphaSkinsEnabled);
+}
+//---------------------------------------------------------------------------
+
+//Pobieranie opisu
+UnicodeString GetStatus(int UserIdx)
+{
+  PluginLink.CallService(AQQ_FUNCTION_GETNETWORKSTATE,(WPARAM)(&PluginStateChange),UserIdx);
+  return (wchar_t*)PluginStateChange.Status;
+}
+//---------------------------------------------------------------------------
+
+//Pobieranie stanu
 int GetState(int UserIdx)
 {
   int State;
@@ -50,114 +74,49 @@ int GetState(int UserIdx)
 }
 //---------------------------------------------------------------------------
 
-
-int __stdcall SendStateService (WPARAM, LPARAM)
+//Pobieranie wybranego wczeœniej opisu
+UnicodeString GetChangedStatus(UnicodeString JID, int UserIdx)
 {
-  Application->Handle = (HWND)SendForm;
-  TSendForm * hSendForm = new TSendForm(Application);
-  hSendForm->eJID = ContactJID;
-  hSendForm->eUserIdx = ContactUserIdx;
-  hSendForm->StatusMemo->Text = GetStatus(ContactUserIdx);
-  hSendForm->StateLMDImageComboBox->ItemIndex = GetState(ContactUserIdx);
-  hSendForm->ShowModal();
-  delete hSendForm;
-
-  return 0;
+  return ChangedStateList->ReadString(JID, "Status", GetStatus(UserIdx));
 }
 //---------------------------------------------------------------------------
 
-//Wylaczanie skrotu
-void SkrotOff()
+//Pobieranie wybranego wczeœniej stanu
+int GetChangedState(UnicodeString JID, int UserIdx)
 {
-  PluginActionEdit.cbSize = sizeof(TPluginActionEdit);
-  PluginActionEdit.pszName = (wchar_t*)L"SendStateButton";
-  PluginActionEdit.Caption = (wchar_t*) L"Wyœlij status/opis";
-  PluginActionEdit.Hint = (wchar_t*)L"";
-  PluginActionEdit.Enabled = false;
-  PluginActionEdit.Visible = false;
-  PluginActionEdit.IconIndex = -1;
-  PluginActionEdit.Checked = false;
-
-  PluginLink.CallService(AQQ_CONTROLS_EDITPOPUPMENUITEM,0,(LPARAM)(&PluginActionEdit));
+  return ChangedStateList->ReadInteger(JID, "State", GetState(UserIdx));
 }
 //---------------------------------------------------------------------------
 
-//Wlaczanie skrotu
-void SkrotOn()
+//Pobieranie sciezki ikony z interfejsu AQQ
+UnicodeString GetIconPath(int Icon)
 {
-  PluginActionEdit.cbSize = sizeof(TPluginActionEdit);
-  PluginActionEdit.pszName = (wchar_t*)L"SendStateButton";
-  PluginActionEdit.Caption = (wchar_t*) L"Wyœlij status/opis";
-  PluginActionEdit.Hint = (wchar_t*)L"";
-  PluginActionEdit.Enabled = true;
-  PluginActionEdit.Visible = true;
-  PluginActionEdit.IconIndex = -1;
-  PluginActionEdit.Checked = false;
-
-  PluginLink.CallService(AQQ_CONTROLS_EDITPOPUPMENUITEM,0,(LPARAM)(&PluginActionEdit));
+  UnicodeString IconPath = (wchar_t*)(PluginLink.CallService(AQQ_FUNCTION_GETPNG_FILEPATH,Icon,0));
+  IconPath = StringReplace(IconPath, "\\", "\\\\", TReplaceFlags() << rfReplaceAll);
+  return IconPath;
 }
-//---------------------------------------------------------------------------
-
-int __stdcall OnSystemPopUp (WPARAM wParam, LPARAM lParam)
-{
-  PopUp = (PPluginPopUp)lParam;
-  PopUpName = PopUp->Name;
-  if(PopUpName=="muItem")
-  {
-	Contact = (PPluginContact)wParam;
-	ContactJID = Contact->JID;
-	ContactUserIdx = Contact->UserIdx;
-
-	if(AnsiPos("@plugin.gg",ContactJID)==0)
-	{
-	  if(Contact->Resource!="")
-	   ContactJID = ContactJID + "/" + Contact->Resource;
-
-	  SkrotOn();
-	}
-	else
-	 SkrotOff();
-  }
-
-  return 0;
-}
-//---------------------------------------------------------------------------
-
-void PrzypiszSkrot()
-{
-  PluginAction.cbSize = sizeof(TPluginAction);
-  PluginAction.pszName = (wchar_t*)L"SendStateButton";
-  PluginAction.pszCaption = (wchar_t*)L"Wyœlij status/opis";
-  PluginAction.Position = 5;
-  PluginAction.IconIndex = -1;
-  PluginAction.pszService = (wchar_t*)L"serwis_SendStateService";
-  PluginAction.pszPopupName = (wchar_t*)L"muItem";
-  PluginAction.Checked = false;
-
-  PluginLink.CallService(AQQ_CONTROLS_CREATEPOPUPMENUITEM,0,(LPARAM)(&PluginAction));
-  PluginLink.CreateServiceFunction(L"serwis_SendStateService",SendStateService);
-}
-//---------------------------------------------------------------------------
+//--------------------------------------------------------------------------
 
 void SendXML(UnicodeString JID, int State, UnicodeString Status, int UserIdx)
 {
-  if(Status!="")
+  //Konwersja specjalnych znakow
+  if(!Status.IsEmpty())
    Status = (wchar_t*)(PluginLink.CallService(AQQ_FUNCTION_CONVERTTOXML,0,(WPARAM)Status.w_str()));
-
+  //Podostawowe zmienne
   UnicodeString XML;
   UnicodeString ShowType;
-
+  //Odkodowanie stanow
   if(State==1)
-   ShowType="chat";
+   ShowType = "chat";
   else if(State==2)
-   ShowType="away";
+   ShowType = "away";
   else if(State==3)
-   ShowType="xa";
+   ShowType = "xa";
   else if(State==4)
-   ShowType="dnd";
+   ShowType = "dnd";
   else if(State==5)
-   ShowType="unavailable";
-
+   ShowType = "unavailable";
+  //Tworzenie pakietu XML
   if((State!=5)&&(State!=0))
   {
 	if(Status!="")
@@ -179,40 +138,93 @@ void SendXML(UnicodeString JID, int State, UnicodeString Status, int UserIdx)
 	else
 	 XML = "<presence to=\"" + JID + "\"/>";
   }
-
+  //Wysylanie pakietu XML
   PluginLink.CallService(AQQ_SYSTEM_SENDXML,(WPARAM)XML.w_str(),UserIdx);
+  //Zapisanie wyslanych danych
+  ChangedStateList->WriteString(JID, "Status", Status);
+  ChangedStateList->WriteInteger(JID, "State", State);
 }
 //--------------------------------------------------------------------------
 
-UnicodeString GetIconPath(int Icon)
+//Glowny serwis wtyczki
+int __stdcall SendStateService (WPARAM, LPARAM)
 {
-  UnicodeString IconPath = (wchar_t*)(PluginLink.CallService(AQQ_FUNCTION_GETPNG_FILEPATH,Icon,0));
-  IconPath = StringReplace(IconPath, "\\", "\\\\", TReplaceFlags() << rfReplaceAll);
-  return IconPath;
+  Application->Handle = (HWND)SendForm;
+  TSendForm * hSendForm = new TSendForm(Application);
+  hSendForm->JID = ContactJID;
+  hSendForm->UserIdx = ContactUserIdx;
+  hSendForm->StatusMemo->Text = GetChangedStatus(ContactJID, ContactUserIdx);//GetStatus(ContactUserIdx);
+  hSendForm->StateComboBox->ItemIndex = GetChangedState(ContactJID, ContactUserIdx);//GetState(ContactUserIdx);
+  hSendForm->ShowModal();
+  delete hSendForm;
+
+  return 0;
 }
-//--------------------------------------------------------------------------
+//---------------------------------------------------------------------------
 
-extern "C" __declspec(dllexport) PPluginInfo __stdcall AQQPluginInfo(DWORD AQQVersion)
+//Zmiana statusu buttona
+void ChangeButtonState(bool Enabled)
 {
-  PluginInfo.cbSize = sizeof(TPluginInfo);
-  PluginInfo.ShortName = (wchar_t*)L"SendState";
-  PluginInfo.Version = PLUGIN_MAKE_VERSION(1,0,1,0);
-  PluginInfo.Description = (wchar_t *)L"Indywidualny status/opis dla kontaktów jabber";
-  PluginInfo.Author = (wchar_t *)L"Krzysztof Grochocki (Beherit)";
-  PluginInfo.AuthorMail = (wchar_t *)L"sirbeherit@gmail.com";
-  PluginInfo.Copyright = (wchar_t *)L"Krzysztof Grochocki (Beherit)";
-  PluginInfo.Homepage = (wchar_t *)L"http://beherit.pl/";
+  PluginActionEdit.cbSize = sizeof(TPluginActionEdit);
+  PluginActionEdit.pszName = (wchar_t*)L"SendStateButton";
+  PluginActionEdit.Caption = (wchar_t*) L"Wyœlij status";
+  PluginActionEdit.Hint = (wchar_t*)L"";
+  PluginActionEdit.Enabled = Enabled;
+  PluginActionEdit.Visible = Enabled;
+  PluginActionEdit.IconIndex = -1;
+  PluginActionEdit.Checked = false;
 
-  return &PluginInfo;
+  PluginLink.CallService(AQQ_CONTROLS_EDITPOPUPMENUITEM,0,(LPARAM)(&PluginActionEdit));
+}
+//---------------------------------------------------------------------------
+
+//Tworzenie przycisku
+void BuildSendStateButton()
+{
+  SendStateButton.cbSize = sizeof(TPluginAction);
+  SendStateButton.pszName = (wchar_t*)L"SendStateButton";
+  SendStateButton.pszCaption = (wchar_t*)L"Wyœlij status";
+  SendStateButton.Position = 5;
+  SendStateButton.IconIndex = -1;
+  SendStateButton.pszService = (wchar_t*)L"aSendStateService";
+  SendStateButton.pszPopupName = (wchar_t*)L"muItem";
+  SendStateButton.Checked = false;
+
+  PluginLink.CallService(AQQ_CONTROLS_CREATEPOPUPMENUITEM,0,(LPARAM)(&SendStateButton));
+  PluginLink.CreateServiceFunction(L"aSendStateService",SendStateService);
+}
+//---------------------------------------------------------------------------
+
+//Hook na pokazywanie popupmenu
+int __stdcall OnSystemPopUp (WPARAM wParam, LPARAM lParam)
+{
+  PopUp = (PPluginPopUp)lParam;
+  UnicodeString PopUpName = PopUp->Name;
+  if(PopUpName=="muItem")
+  {
+	Contact = (PPluginContact)wParam;
+	ContactJID = Contact->JID;
+	ContactUserIdx = Contact->UserIdx;
+
+	if(!ContactJID.Pos("@plugin.gg"))
+	{
+	  if(Contact->Resource!="") ContactJID = ContactJID + "/" + Contact->Resource;
+      ChangeButtonState(true);
+	}
+	else
+	 ChangeButtonState(false);
+  }
+
+  return 0;
 }
 //---------------------------------------------------------------------------
 
 extern "C" int __declspec(dllexport) __stdcall Load(PPluginLink Link)
 {
   PluginLink = *Link;
-
-  PrzypiszSkrot();
-
+  //Tworzenie przycisku
+  BuildSendStateButton();
+  //Hook na pokazywanie popupmenu
   PluginLink.HookEvent(AQQ_SYSTEM_POPUP,OnSystemPopUp);
 
   return 0;
@@ -221,10 +233,29 @@ extern "C" int __declspec(dllexport) __stdcall Load(PPluginLink Link)
 
 extern "C" int __declspec(dllexport) __stdcall Unload()
 {
+  //Usuniecie przycisku + serwisu
   PluginLink.DestroyServiceFunction(SendStateService);
-  PluginLink.CallService(AQQ_CONTROLS_DESTROYPOPUPMENUITEM,0,(LPARAM)(&PluginAction));
+  PluginLink.CallService(AQQ_CONTROLS_DESTROYPOPUPMENUITEM,0,(LPARAM)(&SendStateButton));
+  //Wyladowanie hookow
   PluginLink.UnhookEvent(OnSystemPopUp);
+  //Usuniecie zmiennych globalnych
+  delete ChangedStateList;
 
   return 0;
 }
 //--------------------------------------------------------------------------
+
+extern "C" __declspec(dllexport) PPluginInfo __stdcall AQQPluginInfo(DWORD AQQVersion)
+{
+  PluginInfo.cbSize = sizeof(TPluginInfo);
+  PluginInfo.ShortName = L"SendState";
+  PluginInfo.Version = PLUGIN_MAKE_VERSION(1,1,0,0);
+  PluginInfo.Description = L"Indywidualny status dla kontaktów Jabber";
+  PluginInfo.Author = L"Krzysztof Grochocki (Beherit)";
+  PluginInfo.AuthorMail = L"kontakt@beherit.pl";
+  PluginInfo.Copyright = L"Krzysztof Grochocki (Beherit)";
+  PluginInfo.Homepage = L"http://beherit.pl/";
+
+  return &PluginInfo;
+}
+//---------------------------------------------------------------------------
