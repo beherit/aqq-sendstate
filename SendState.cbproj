@@ -61,17 +61,17 @@
 			<TASM_Debugging>None</TASM_Debugging>
 		</PropertyGroup>
 		<ItemGroup>
-			<ResFiles Include="SendState.res">
-				<BuildOrder>2</BuildOrder>
-			</ResFiles>
-			<CppCompile Include="SendState.cpp">
-				<BuildOrder>1</BuildOrder>
-			</CppCompile>
 			<CppCompile Include="SendFrm.cpp">
 				<Form>SendForm</Form>
 				<DependentOn>SendFrm.h</DependentOn>
 				<BuildOrder>2</BuildOrder>
 			</CppCompile>
+			<CppCompile Include="SendState.cpp">
+				<BuildOrder>1</BuildOrder>
+			</CppCompile>
+			<ResFiles Include="SendState.res">
+				<BuildOrder>2</BuildOrder>
+			</ResFiles>
 			<FormResources Include="SendFrm.dfm"/>
 			<BuildConfiguration Include="Base">
 				<Key>Base</Key>
