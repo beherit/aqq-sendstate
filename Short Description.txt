@@ -1,0 +1,1 @@
+Wtyczka s³u¿y do wysy³ania indywidualnego statusu kontaktom z sieci Jabber. Wystarczy wybraæ kontakt, klikn¹æ w pozycjê "Wyœlij status", wybraæ odpowiedni stan oraz zmieniæ opis i klikn¹æ w przycisk "Wyœlij".
