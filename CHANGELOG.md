@@ -1,3 +1,7 @@
+1.0.1.0
+-----
+* Poprawka w wysy³anym pakiecie XML.
+
 1.0.0.2
 -----
 * Kodowanie niedozwolonych znaków w opisie.

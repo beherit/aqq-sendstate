@@ -71,7 +71,7 @@ void SkrotOff()
 {
   PluginActionEdit.cbSize = sizeof(TPluginActionEdit);
   PluginActionEdit.pszName = (wchar_t*)L"SendStateButton";
-  PluginActionEdit.Caption = (wchar_t*) L"Wyœlij status/opis...";
+  PluginActionEdit.Caption = (wchar_t*) L"Wyœlij status/opis";
   PluginActionEdit.Hint = (wchar_t*)L"";
   PluginActionEdit.Enabled = false;
   PluginActionEdit.Visible = false;
@@ -170,14 +170,14 @@ void SendXML(UnicodeString JID, int State, UnicodeString Status, int UserIdx)
 	if(Status!="")
 	 XML = "<presence to=\"" + JID + "\" type=\"" + ShowType + "\"><status>" + Status + "</status></presence>";
 	else
-	 XML = "<presence to=\"" + JID + "\" type=\"" + ShowType+ "\"></presence>";
+	 XML = "<presence to=\"" + JID + "\" type=\"" + ShowType+ "\"/>";
   }
   else
   {
 	if(Status!="")
 	 XML = "<presence to=\"" + JID + "\"><status>" + Status + "</status></presence>";
 	else
-	 XML = "<presence to=\"" + JID + "\"></presence>";
+	 XML = "<presence to=\"" + JID + "\"/>";
   }
 
   PluginLink.CallService(AQQ_SYSTEM_SENDXML,(WPARAM)XML.w_str(),UserIdx);
@@ -196,7 +196,7 @@ extern "C" __declspec(dllexport) PPluginInfo __stdcall AQQPluginInfo(DWORD AQQVe
 {
   PluginInfo.cbSize = sizeof(TPluginInfo);
   PluginInfo.ShortName = (wchar_t*)L"SendState";
-  PluginInfo.Version = PLUGIN_MAKE_VERSION(1,0,0,2);
+  PluginInfo.Version = PLUGIN_MAKE_VERSION(1,0,1,0);
   PluginInfo.Description = (wchar_t *)L"Indywidualny status/opis dla kontaktów jabber";
   PluginInfo.Author = (wchar_t *)L"Krzysztof Grochocki (Beherit)";
   PluginInfo.AuthorMail = (wchar_t *)L"sirbeherit@gmail.com";
