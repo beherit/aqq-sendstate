@@ -1,3 +1,12 @@
+1.2.0.0
+-----
+* Wys³any opis ustawiany jest w koñcu na ca³y czas trwania sesji!
+* Oznaczenie wys³ania ju¿ statusu do kontaktu.
+* Mo¿liwoœæ szybkiego przywrócenia aktualnego opisu.
+* Przepisanie wtyczki pod kompilator Embarcadero C++ Builder XE3.
+* Aktualizacja komponentów AlphaControls do najnowszej dostêpnej wersji (7.70).
+* Optymalizacja kodu.
+
 1.1.2.0
 -----
 * Obs³uga natywnego stylu Windows (wy³¹czone skórkowanie okien wtyczki).

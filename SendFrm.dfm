@@ -15,10 +15,24 @@ object SendForm: TSendForm
   OldCreateOrder = False
   Position = poScreenCenter
   OnCreate = FormCreate
-  OnPaint = FormPaint
   OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13
+  object ResetButton: TsSpeedButton
+    Left = 10
+    Top = 136
+    Width = 23
+    Height = 22
+    Hint = 'Przywr'#243#263' aktualny opis i status'
+    Flat = True
+    ParentShowHint = False
+    ShowHint = True
+    Visible = False
+    OnClick = ResetButtonClick
+    SkinData.SkinSection = 'SPEEDBUTTON'
+    ImageIndex = 6
+    Images = sAlphaImageList
+  end
   object StatusMemo: TsMemo
     Left = 8
     Top = 41
@@ -78,7 +92,7 @@ object SendForm: TSendForm
       'Roz'#322#261'czony')
   end
   object ActionList: TActionList
-    Top = 136
+    Left = 32
     object aExit: TAction
       Caption = 'aExit'
       ShortCut = 27
@@ -122,8 +136,8 @@ object SendForm: TSendForm
     ThirdParty.ThirdSpeedButton = ' '
     ThirdParty.ThirdScrollControl = ' '
     ThirdParty.ThirdUpDown = ' '
-    Left = 32
-    Top = 136
+    ThirdParty.ThirdScrollBar = ' '
+    Left = 64
   end
   object sSkinProvider: TsSkinProvider
     AddedTitle.Font.Charset = DEFAULT_CHARSET
@@ -133,12 +147,10 @@ object SendForm: TSendForm
     AddedTitle.Font.Style = []
     SkinData.SkinSection = 'FORM'
     TitleButtons = <>
-    Left = 64
-    Top = 136
+    Left = 96
   end
   object sAlphaImageList: TsAlphaImageList
     DrawingStyle = dsTransparent
     Items = <>
-    Top = 104
   end
 end

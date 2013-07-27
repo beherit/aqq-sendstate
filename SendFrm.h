@@ -16,6 +16,9 @@
 #include "sComboBoxes.hpp"
 #include "acAlphaImageList.hpp"
 #include "sComboBox.hpp"
+#include <System.Actions.hpp>
+#include "sSpeedButton.hpp"
+#include <Vcl.Buttons.hpp>
 //---------------------------------------------------------------------------
 class TSendForm : public TForm
 {
@@ -29,6 +32,7 @@ __published:	// IDE-managed Components
 	TsSkinProvider *sSkinProvider;
 	TsAlphaImageList *sAlphaImageList;
 	TsComboBox *StateComboBox;
+	TsSpeedButton *ResetButton;
 	void __fastcall aExitExecute(TObject *Sender);
 	void __fastcall aSelectMemoExecute(TObject *Sender);
 	void __fastcall SendButtonClick(TObject *Sender);
@@ -36,7 +40,7 @@ __published:	// IDE-managed Components
 	void __fastcall FormCreate(TObject *Sender);
 	void __fastcall StateComboBoxDrawItem(TWinControl *Control, int Index, TRect &Rect,
           TOwnerDrawState State);
-	void __fastcall FormPaint(TObject *Sender);
+	void __fastcall ResetButtonClick(TObject *Sender);
 private:	// User declarations
 public:		// User declarations
 	UnicodeString JID;
