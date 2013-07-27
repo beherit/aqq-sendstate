@@ -4,22 +4,20 @@
 #include "SendFrm.h"
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
-#pragma link "sSkinManager"
-#pragma link "sSkinProvider"
-#pragma link "sSkinManager"
-#pragma link "sSkinProvider"
-#pragma link "sButton"
-#pragma link "sMemo"
-#pragma link "sComboBoxes"
 #pragma link "acAlphaImageList"
+#pragma link "sButton"
 #pragma link "sComboBox"
+#pragma link "sMemo"
+#pragma link "sSkinManager"
+#pragma link "sSkinProvider"
 #pragma link "sSpeedButton"
 #pragma resource "*.dfm"
 TSendForm *SendForm;
 //---------------------------------------------------------------------------
 __declspec(dllimport)UnicodeString GetThemeSkinDir();
 __declspec(dllimport)bool ChkSkinEnabled();
-__declspec(dllimport)bool ChkNativeEnabled();
+__declspec(dllimport)bool ChkThemeAnimateWindows();
+__declspec(dllimport)bool ChkThemeGlowing();
 __declspec(dllimport)void SendXML(UnicodeString JID, int UserIdx, UnicodeString Status, int State);
 __declspec(dllimport)UnicodeString GetIconPath(int Icon);
 __declspec(dllimport)UnicodeString GetStatus(int UserIdx);
@@ -31,6 +29,13 @@ __fastcall TSendForm::TSendForm(TComponent* Owner)
 }
 //---------------------------------------------------------------------------
 
+void __fastcall TSendForm::WMTransparency(TMessage &Message)
+{
+  Application->ProcessMessages();
+  sSkinProvider->BorderForm->UpdateExBordersPos(true,(int)Message.LParam);
+}
+//---------------------------------------------------------------------------
+
 void __fastcall TSendForm::aExitExecute(TObject *Sender)
 {
   //Zamkniecie formy
@@ -38,39 +43,33 @@ void __fastcall TSendForm::aExitExecute(TObject *Sender)
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TSendForm::aSelectMemoExecute(TObject *Sender)
+void __fastcall TSendForm::FormCreate(TObject *Sender)
 {
-  //Zaznaczenie calego tekstu
-  StatusMemo->SelectAll();
-}
-//---------------------------------------------------------------------------
-
-void __fastcall TSendForm::SendButtonClick(TObject *Sender)
-{
-  //Wyslanie nowego statusu
-  SendXML(JID,UserIdx,StatusMemo->Text.Trim(),StateComboBox->ItemIndex);
-  //Zamkniecie formy
-  Close();
+  //Wlaczona zaawansowana stylizacja okien
+  if(ChkSkinEnabled())
+  {
+	UnicodeString ThemeSkinDir = GetThemeSkinDir();
+	//Plik zaawansowanej stylizacji okien istnieje
+	if(FileExists(ThemeSkinDir + "\\\\Skin.asz"))
+	{
+	  ThemeSkinDir = StringReplace(ThemeSkinDir, "\\\\", "\\", TReplaceFlags() << rfReplaceAll);
+	  sSkinManager->SkinDirectory = ThemeSkinDir;
+	  sSkinManager->SkinName = "Skin.asz";
+	  if(ChkThemeAnimateWindows()) sSkinManager->AnimEffects->FormShow->Time = 200;
+	  else sSkinManager->AnimEffects->FormShow->Time = 0;
+	  sSkinManager->Effects->AllowGlowing = ChkThemeGlowing();
+	  sSkinManager->Active = true;
+	}
+	//Brak pliku zaawansowanej stylizacji okien
+	else sSkinManager->Active = false;
+  }
+  //Zaawansowana stylizacja okien wylaczona
+  else sSkinManager->Active = false;
 }
 //---------------------------------------------------------------------------
 
 void __fastcall TSendForm::FormShow(TObject *Sender)
 {
-  //AplhaSkins
-  if(!ChkSkinEnabled())
-  {
-	UnicodeString ThemeSkinDir = GetThemeSkinDir();
-	if((FileExists(ThemeSkinDir + "\\\\Skin.asz"))&&(!ChkNativeEnabled()))
-	{
-	  ThemeSkinDir = StringReplace(ThemeSkinDir, "\\\\", "\\", TReplaceFlags() << rfReplaceAll);
-	  sSkinManager->SkinDirectory = ThemeSkinDir;
-	  sSkinManager->SkinName = "Skin.asz";
-	  sSkinProvider->DrawNonClientArea = false;
-	  sSkinManager->Active = true;
-	}
-	else
-	 sSkinManager->Active = false;
-  }
   //Wczytanie ikon z interfesju AQQ
   sAlphaImageList->AcBeginUpdate();
   sAlphaImageList->Clear();
@@ -90,23 +89,19 @@ void __fastcall TSendForm::FormShow(TObject *Sender)
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TSendForm::FormCreate(TObject *Sender)
+void __fastcall TSendForm::aSelectMemoExecute(TObject *Sender)
 {
-  //AlphaSkins
-  if(ChkSkinEnabled())
-  {
-	UnicodeString ThemeSkinDir = GetThemeSkinDir();
-	if((FileExists(ThemeSkinDir + "\\\\Skin.asz"))&&(!ChkNativeEnabled()))
-	{
-	  ThemeSkinDir = StringReplace(ThemeSkinDir, "\\\\", "\\", TReplaceFlags() << rfReplaceAll);
-	  sSkinManager->SkinDirectory = ThemeSkinDir;
-	  sSkinManager->SkinName = "Skin.asz";
-	  sSkinProvider->DrawNonClientArea = true;
-	  sSkinManager->Active = true;
-	}
-	else
-	 sSkinManager->Active = false;
-  }
+  //Zaznaczenie calego tekstu
+  StatusMemo->SelectAll();
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TSendForm::SendButtonClick(TObject *Sender)
+{
+  //Wyslanie nowego statusu
+  SendXML(JID,UserIdx,StatusMemo->Text.Trim(),StateComboBox->ItemIndex);
+  //Zamkniecie formy
+  Close();
 }
 //---------------------------------------------------------------------------
 
