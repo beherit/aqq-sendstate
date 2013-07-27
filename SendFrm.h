@@ -2,40 +2,45 @@
 #ifndef SendFrmH
 #define SendFrmH
 //---------------------------------------------------------------------------
-#include "LMDCustomComboBox.hpp"
-#include "LMDCustomImageComboBox.hpp"
-#include "LMDImageComboBox.hpp"
-#include "LMDThemedComboBox.hpp"
 #include <ActnList.hpp>
 #include <Classes.hpp>
 #include <Controls.hpp>
 #include <ImgList.hpp>
 #include <StdCtrls.hpp>
 #include <ExtCtrls.hpp>
-#include "LMDCustomImageList.hpp"
-#include "LMDGraphicList.hpp"
+#include <ComCtrls.hpp>
+#include "sSkinManager.hpp"
+#include "sSkinProvider.hpp"
+#include "sButton.hpp"
+#include "sMemo.hpp"
+#include "sComboBoxes.hpp"
+#include "acAlphaImageList.hpp"
+#include "sComboBox.hpp"
 //---------------------------------------------------------------------------
 class TSendForm : public TForm
 {
 __published:	// IDE-managed Components
-	TLMDImageComboBox *StateLMDImageComboBox;
-	TMemo *StatusMemo;
-	TButton *SendButton;
+	TsMemo *StatusMemo;
+	TsButton *SendButton;
 	TActionList *ActionList;
 	TAction *aExit;
-	TAction *aChangeIcons;
 	TAction *aSelectMemo;
-	TLMDGraphicList *LMDGraphicList;
+	TsSkinManager *sSkinManager;
+	TsSkinProvider *sSkinProvider;
+	TsAlphaImageList *sAlphaImageList;
+	TsComboBox *StateComboBox;
 	void __fastcall aExitExecute(TObject *Sender);
-	void __fastcall aChangeIconsExecute(TObject *Sender);
 	void __fastcall aSelectMemoExecute(TObject *Sender);
 	void __fastcall SendButtonClick(TObject *Sender);
 	void __fastcall FormShow(TObject *Sender);
-
+	void __fastcall FormCreate(TObject *Sender);
+	void __fastcall StateComboBoxDrawItem(TWinControl *Control, int Index, TRect &Rect,
+          TOwnerDrawState State);
+	void __fastcall FormPaint(TObject *Sender);
 private:	// User declarations
 public:		// User declarations
-	UnicodeString eJID;
-	int eUserIdx;
+	UnicodeString JID;
+	int UserIdx;
 	__fastcall TSendForm(TComponent* Owner);
 };
 //---------------------------------------------------------------------------
