@@ -1,3 +1,24 @@
+//---------------------------------------------------------------------------
+// Copyright (C) 2010-2013 Krzysztof Grochocki
+//
+// This file is part of SendState
+//
+// SendState is free software; you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation; either version 3, or (at your option)
+// any later version.
+//
+// SendState is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with GNU Radio; see the file COPYING. If not, write to
+// the Free Software Foundation, Inc., 51 Franklin Street,
+// Boston, MA 02110-1301, USA.
+//---------------------------------------------------------------------------
+
 #include <vcl.h>
 #include <windows.h>
 #pragma hdrstop
@@ -14,11 +35,6 @@ int WINAPI DllEntryPoint(HINSTANCE hinst, unsigned long reason, void* lpReserved
 //Struktury-glowne-----------------------------------------------------------
 TPluginLink PluginLink;
 TPluginInfo PluginInfo;
-TPluginAction SendStateItem;
-PPluginPopUp PopUp;
-PPluginContact SystemPopUContact;
-PPluginContact ContactsUpdateContact;
-PPluginStateChange StateChange;
 //Dane-na-temat-kontaktow----------------------------------------------------
 UnicodeString ContactJID;
 int ContactUserIdx;
@@ -76,6 +92,18 @@ bool ChkThemeGlowing()
   UnicodeString GlowingEnabled = Settings->ReadString("Theme","ThemeGlowing","1");
   delete Settings;
   return StrToBool(GlowingEnabled);
+}
+//---------------------------------------------------------------------------
+
+//Pobieranie ustawien koloru AlphaControls
+int GetHUE()
+{
+  return (int)PluginLink.CallService(AQQ_SYSTEM_COLORGETHUE,0,0);
+}
+//---------------------------------------------------------------------------
+int GetSaturation()
+{
+  return (int)PluginLink.CallService(AQQ_SYSTEM_COLORGETSATURATION,0,0);
 }
 //---------------------------------------------------------------------------
 
@@ -258,6 +286,8 @@ void ChangeItemState(bool Enabled, bool Checked)
 //Usuniecie przycisku z interfejsu
 void DestroySendStateItem()
 {
+  TPluginAction SendStateItem;
+  ZeroMemory(&SendStateItem, sizeof(TPluginAction));
   SendStateItem.cbSize = sizeof(TPluginAction);
   SendStateItem.pszName = L"SendStateItem";
   PluginLink.CallService(AQQ_CONTROLS_DESTROYPOPUPMENUITEM,0,(LPARAM)(&SendStateItem));
@@ -267,6 +297,8 @@ void DestroySendStateItem()
 //Tworzenie przycisku w interfejsie
 void BuildSendStateItem()
 {
+  TPluginAction SendStateItem;
+  ZeroMemory(&SendStateItem, sizeof(TPluginAction));
   SendStateItem.cbSize = sizeof(TPluginAction);
   SendStateItem.pszName = L"SendStateItem";
   SendStateItem.pszCaption = L"Wyœlij status";
@@ -286,12 +318,12 @@ int __stdcall OnContactsUpdate(WPARAM wParam, LPARAM lParam)
   if(lParam==CONTACT_UPDATE_ONLINE)
   {
 	//Pobieranie danych kontatku
-	ContactsUpdateContact = (PPluginContact)wParam;
+	TPluginContact ContactsUpdateContact = *(PPluginContact)wParam;
 	//Pobieranie identyfikatora kontatku
-	UnicodeString JID = (wchar_t*)ContactsUpdateContact->JID;
+	UnicodeString JID = (wchar_t*)ContactsUpdateContact.JID;
 	//Sprawdzanie czy dla kontatku zostal wyslany inny status
 	if(ChangedStateList->ValueExists("Status", JID))
-	 SendXML(JID, ContactsUpdateContact->UserIdx, GetChangedStatus(ContactJID, ContactUserIdx), GetChangedState(ContactJID, ContactUserIdx));
+	 SendXML(JID, ContactsUpdateContact.UserIdx, GetChangedStatus(ContactJID, ContactUserIdx), GetChangedState(ContactJID, ContactUserIdx));
   }
 
   return 0;
@@ -307,9 +339,9 @@ int __stdcall OnStateChange(WPARAM wParam, LPARAM lParam)
   if(NewStatus->Count>0)
   {
     //Pobranie danych dotyczacych konta
-	StateChange = (PPluginStateChange)lParam;
+	TPluginStateChange StateChange = *(PPluginStateChange)lParam;
 	//Wlaczenie timera wysylania ustawionych statusow dla kontaktow
-	SetTimer(hTimerFrm,StateChange->UserIdx,10,(TIMERPROC)TimerFrmProc);
+	SetTimer(hTimerFrm,StateChange.UserIdx,10,(TIMERPROC)TimerFrmProc);
   }
   delete NewStatus;
 
@@ -320,18 +352,18 @@ int __stdcall OnStateChange(WPARAM wParam, LPARAM lParam)
 //Hook na pokazywanie popupmenu
 int __stdcall OnSystemPopUp(WPARAM wParam, LPARAM lParam)
 {
-  PopUp = (PPluginPopUp)lParam;
+  TPluginPopUp PopUp = *(PPluginPopUp)lParam;
   //Pobieranie nazwy popupmenu
-  UnicodeString PopUpName = (wchar_t*)PopUp->Name;
+  UnicodeString PopUpName = (wchar_t*)PopUp.Name;
   //Popupmenu dostepne spod PPM na kontakcie w oknie kontaktow
   if(PopUpName=="muItem")
   {
 	//Pobieranie danych kontatku
-	SystemPopUContact = (PPluginContact)wParam;
+	TPluginContact SystemPopUContact = *(PPluginContact)wParam;
 	//Pobieranie identyfikatora kontatku
-	UnicodeString JID = (wchar_t*)SystemPopUContact->JID;
+	UnicodeString JID = (wchar_t*)SystemPopUContact.JID;
 	//Kontakt nie pochodzi od wtyczki i nie jest z transportu
-	if((!SystemPopUContact->FromPlugin)
+	if((!SystemPopUContact.FromPlugin)
 	&&(!JID.Pos("@gg."))
 	&&(!JID.Pos("@gadu-gadu."))
 	&&(!JID.Pos("@icq."))
@@ -344,7 +376,7 @@ int __stdcall OnSystemPopUp(WPARAM wParam, LPARAM lParam)
 	  //Zapisanie identyfikatora kontatku w zmiennej globalnej
 	  ContactJID = JID;
 	  //Pobieranie indeksu konta
-	  ContactUserIdx = SystemPopUContact->UserIdx;
+	  ContactUserIdx = SystemPopUContact.UserIdx;
 	  //Pokazanie przycisku w interfejsie
 	  ChangeItemState(true,ChangedStateList->ValueExists("Status", ContactJID));
 	}
@@ -417,12 +449,14 @@ extern "C" PPluginInfo __declspec(dllexport) __stdcall AQQPluginInfo(DWORD AQQVe
 {
   PluginInfo.cbSize = sizeof(TPluginInfo);
   PluginInfo.ShortName = L"SendState";
-  PluginInfo.Version = PLUGIN_MAKE_VERSION(1,3,0,0);
+  PluginInfo.Version = PLUGIN_MAKE_VERSION(1,3,1,0);
   PluginInfo.Description = L"Wtyczka s³u¿y do wysy³ania indywidualnego statusu kontaktom z sieci Jabber. Wystarczy wybraæ kontakt, klikn¹æ w pozycjê \"Wyœlij status\", wybraæ odpowiedni stan oraz zmieniæ opis i klikn¹æ w przycisk \"Wyœlij\".";
   PluginInfo.Author = L"Krzysztof Grochocki (Beherit)";
   PluginInfo.AuthorMail = L"kontakt@beherit.pl";
   PluginInfo.Copyright = L"Krzysztof Grochocki (Beherit)";
   PluginInfo.Homepage = L"http://beherit.pl";
+  PluginInfo.Flag = 0;
+  PluginInfo.ReplaceDefaultModule = 0;
 
   return &PluginInfo;
 }
