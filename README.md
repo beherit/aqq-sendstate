@@ -12,7 +12,7 @@ Autorem wtyczki SendState jest Krzysztof Grochocki. Możesz skontaktować się z
 
 Licencja
 -------
-Wtyczka SendState wykorzystuje licencję [GNU General Public License 3](http://www.gnu.org/copyleft/gpl.html).
+Wtyczka SendState objęta jest licencją [GNU General Public License 3](http://www.gnu.org/copyleft/gpl.html).
 
     SendState
     Copyright (C) 2010-2013  Krzysztof Grochocki
