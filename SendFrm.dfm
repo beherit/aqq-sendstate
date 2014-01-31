@@ -77,6 +77,7 @@ object SendForm: TSendForm
     BoundLabel.MaxWidth = 0
     BoundLabel.UseSkinColor = True
     SkinData.SkinSection = 'COMBOBOX'
+    VerticalAlignment = taAlignTop
     Style = csOwnerDrawFixed
     ItemHeight = 21
     ItemIndex = 0
@@ -137,6 +138,7 @@ object SendForm: TSendForm
     ThirdParty.ThirdScrollControl = ' '
     ThirdParty.ThirdUpDown = ' '
     ThirdParty.ThirdScrollBar = ' '
+    ThirdParty.ThirdStaticText = ' '
     Left = 64
   end
   object sSkinProvider: TsSkinProvider

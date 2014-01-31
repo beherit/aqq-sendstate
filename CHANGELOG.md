@@ -1,3 +1,10 @@
+1.3.2.0
+-----
+* Zablokowanie funkcjonalnoœci dla kontaktów z sieci Facebook.
+* Kompilacja pod poprawionymi nag³ówkami dla wersji 64-bitowej.
+* Zmniejszenie rozmiaru wtyczki 64-bitowej poprzez u¿ycie kompresji LZMA.
+* Aktualizacja komponentów AlphaControls do nowszej wersji (8.53).
+
 1.3.1.0
 -----
 * Obs³uga kolorystyki stylizacji okien (barwa i nasycenie).
