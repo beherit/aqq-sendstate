@@ -1,5 +1,5 @@
 //---------------------------------------------------------------------------
-// Copyright (C) 2010-2013 Krzysztof Grochocki
+// Copyright (C) 2010-2014 Krzysztof Grochocki
 //
 // This file is part of SendState
 //
@@ -43,9 +43,9 @@ TCustomIniFile* ChangedStateList = new TMemIniFile(ChangeFileExt(Application->Ex
 //Uchwyt-do-okna-timera------------------------------------------------------
 HWND hTimerFrm;
 //FORWARD-AQQ-HOOKS----------------------------------------------------------
-int __stdcall OnContactsUpdate(WPARAM wParam, LPARAM lParam);
-int __stdcall OnStateChange(WPARAM wParam, LPARAM lParam);
-int __stdcall OnSystemPopUp(WPARAM wParam, LPARAM lParam);
+INT_PTR __stdcall OnContactsUpdate(WPARAM wParam, LPARAM lParam);
+INT_PTR __stdcall OnStateChange(WPARAM wParam, LPARAM lParam);
+INT_PTR __stdcall OnSystemPopUp(WPARAM wParam, LPARAM lParam);
 //---------------------------------------------------------------------------
 
 //Pobieranie sciezki do skorki kompozycji
@@ -242,7 +242,7 @@ LRESULT CALLBACK TimerFrmProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam
 //---------------------------------------------------------------------------
 
 //Glowny serwis wtyczki
-int __stdcall SendStateService(WPARAM wParam, LPARAM lParam)
+INT_PTR __stdcall SendStateService(WPARAM wParam, LPARAM lParam)
 {
   //Tworzenie uchwytu do formy
   Application->Handle = (HWND)SendForm;
@@ -312,7 +312,7 @@ void BuildSendStateItem()
 //---------------------------------------------------------------------------
 
 //Hook na zmianê stanu kontaktu
-int __stdcall OnContactsUpdate(WPARAM wParam, LPARAM lParam)
+INT_PTR __stdcall OnContactsUpdate(WPARAM wParam, LPARAM lParam)
 {
   //Jezeli kontakt dopiero sie polaczyl
   if(lParam==CONTACT_UPDATE_ONLINE)
@@ -331,7 +331,7 @@ int __stdcall OnContactsUpdate(WPARAM wParam, LPARAM lParam)
 //---------------------------------------------------------------------------
 
 //Notyfikacja zmiany stanu
-int __stdcall OnStateChange(WPARAM wParam, LPARAM lParam)
+INT_PTR __stdcall OnStateChange(WPARAM wParam, LPARAM lParam)
 {
   //Sprawdzanie czy zostaly wyslane jakies statusy kontaktom
   TStringList *NewStatus = new TStringList;
@@ -350,7 +350,7 @@ int __stdcall OnStateChange(WPARAM wParam, LPARAM lParam)
 //---------------------------------------------------------------------------
 
 //Hook na pokazywanie popupmenu
-int __stdcall OnSystemPopUp(WPARAM wParam, LPARAM lParam)
+INT_PTR __stdcall OnSystemPopUp(WPARAM wParam, LPARAM lParam)
 {
   TPluginPopUp PopUp = *(PPluginPopUp)lParam;
   //Pobieranie nazwy popupmenu
@@ -362,8 +362,9 @@ int __stdcall OnSystemPopUp(WPARAM wParam, LPARAM lParam)
 	TPluginContact SystemPopUContact = *(PPluginContact)wParam;
 	//Pobieranie identyfikatora kontatku
 	UnicodeString JID = (wchar_t*)SystemPopUContact.JID;
-	//Kontakt nie pochodzi od wtyczki i nie jest z transportu
+	//Kontakt nie pochodzi od wtyczki i czatu FB oraz nie jest z transportu
 	if((!SystemPopUContact.FromPlugin)
+	&&(!JID.Pos("@chat.facebook.com"))
 	&&(!JID.Pos("@gg."))
 	&&(!JID.Pos("@gadu-gadu."))
 	&&(!JID.Pos("@icq."))
@@ -389,7 +390,7 @@ int __stdcall OnSystemPopUp(WPARAM wParam, LPARAM lParam)
 }
 //---------------------------------------------------------------------------
 
-extern "C" int __declspec(dllexport) __stdcall Load(PPluginLink Link)
+extern "C" INT_PTR __declspec(dllexport) __stdcall Load(PPluginLink Link)
 {
   //Linkowanie wtyczki z komunikatorem
   PluginLink = *Link;
@@ -425,7 +426,7 @@ extern "C" int __declspec(dllexport) __stdcall Load(PPluginLink Link)
 }
 //---------------------------------------------------------------------------
 
-extern "C" int __declspec(dllexport) __stdcall Unload()
+extern "C" INT_PTR __declspec(dllexport) __stdcall Unload()
 {
   //Usuwanie okna timera
   DestroyWindow(hTimerFrm);
@@ -449,7 +450,7 @@ extern "C" PPluginInfo __declspec(dllexport) __stdcall AQQPluginInfo(DWORD AQQVe
 {
   PluginInfo.cbSize = sizeof(TPluginInfo);
   PluginInfo.ShortName = L"SendState";
-  PluginInfo.Version = PLUGIN_MAKE_VERSION(1,3,1,0);
+  PluginInfo.Version = PLUGIN_MAKE_VERSION(1,3,2,0);
   PluginInfo.Description = L"Wtyczka s³u¿y do wysy³ania indywidualnego statusu kontaktom z sieci Jabber. Wystarczy wybraæ kontakt, klikn¹æ w pozycjê \"Wyœlij status\", wybraæ odpowiedni stan oraz zmieniæ opis i klikn¹æ w przycisk \"Wyœlij\".";
   PluginInfo.Author = L"Krzysztof Grochocki (Beherit)";
   PluginInfo.AuthorMail = L"kontakt@beherit.pl";
