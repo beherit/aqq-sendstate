@@ -1,57 +1,57 @@
 1.3.2.0
 -----
-* Zablokowanie funkcjonalnoúci dla kontaktÛw z sieci Facebook.
-* Kompilacja pod poprawionymi nag≥Ûwkami dla wersji 64-bitowej.
-* Zmniejszenie rozmiaru wtyczki 64-bitowej poprzez uøycie kompresji LZMA.
-* Aktualizacja komponentÛw AlphaControls do nowszej wersji (8.53).
+* Zablokowanie funkcjonalno≈õci dla kontakt√≥w z sieci Facebook.
+* Kompilacja pod poprawionymi nag≈Ç√≥wkami dla wersji 64-bitowej.
+* Zmniejszenie rozmiaru wtyczki 64-bitowej poprzez u≈ºycie kompresji LZMA.
+* Aktualizacja komponent√≥w AlphaControls do nowszej wersji (8.53).
 
 1.3.1.0
 -----
-* Obs≥uga kolorystyki stylizacji okien (barwa i nasycenie).
+* Obs≈Çuga kolorystyki stylizacji okien (barwa i nasycenie).
 * Optymalizacja kodu.
-* Drobna poprawka w obs≥udze nadawania przeüroczystoúci obramowaÒ przez wtyczkÍ AlphaWindows.
-* Aktualizacja komponentÛw AlphaControls do nowszej wersji (8.44).
+* Drobna poprawka w obs≈Çudze nadawania prze≈∫roczysto≈õci obramowa≈Ñ przez wtyczkƒô AlphaWindows.
+* Aktualizacja komponent√≥w AlphaControls do nowszej wersji (8.44).
 
 1.3.0.0
 -----
 * Dodanie 64-bitowej wersji wtyczki.
-* Wsparcie dla wtyczki AlphaWindows (ustawianie przeüroczystoúci obramowania).
-* Zmniejszenie rozmiaru wtyczki 32-bitowej poprzez uøycie kompresji LZMA.
-* Drobne zmiany w skÛrkowaniu form.
-* Aktualizacja komponentÛw AlphaControls do nowszej wersji (8.20).
+* Wsparcie dla wtyczki AlphaWindows (ustawianie prze≈∫roczysto≈õci obramowania).
+* Zmniejszenie rozmiaru wtyczki 32-bitowej poprzez u≈ºycie kompresji LZMA.
+* Drobne zmiany w sk√≥rkowaniu form.
+* Aktualizacja komponent√≥w AlphaControls do nowszej wersji (8.20).
 
 1.2.1.0
 -----
-* Drobne poprawki w procesie wy≥adowania wtyczki.
+* Drobne poprawki w procesie wy≈Çadowania wtyczki.
 
 1.2.0.0
 -----
-* Wys≥any opis ustawiany jest w koÒcu na ca≥y czas trwania sesji!
-* Oznaczenie wys≥ania juø statusu do kontaktu.
-* MoøliwoúÊ szybkiego przywrÛcenia aktualnego opisu.
+* Wys≈Çany opis ustawiany jest w ko≈Ñcu na ca≈Çy czas trwania sesji!
+* Oznaczenie wys≈Çania ju≈º statusu do kontaktu.
+* Mo≈ºliwo≈õƒá szybkiego przywr√≥cenia aktualnego opisu.
 * Przepisanie wtyczki pod kompilator Embarcadero C++ Builder XE3.
-* Aktualizacja komponentÛw AlphaControls do najnowszej dostÍpnej wersji (7.70).
+* Aktualizacja komponent√≥w AlphaControls do najnowszej dostƒôpnej wersji (7.70).
 * Optymalizacja kodu.
 
 1.1.2.0
 -----
-* Obs≥uga natywnego stylu Windows (wy≥πczone skÛrkowanie okien wtyczki).
-* Aktualizacja komponentÛw AlphaControls do najnowszej dostÍpnej wersji (7.60).
-* Inne mniej waøne poprawki.
+* Obs≈Çuga natywnego stylu Windows (wy≈ÇƒÖczone sk√≥rkowanie okien wtyczki).
+* Aktualizacja komponent√≥w AlphaControls do najnowszej dostƒôpnej wersji (7.60).
+* Inne mniej wa≈ºne poprawki.
 
 1.1.0.0
 -----
-* Pe≥ne skÛrkowanie okna wtyczki.
-* ZapamiÍtywanie wys≥anego wczeúniej statusu do danego kontaktu.
+* Pe≈Çne sk√≥rkowanie okna wtyczki.
+* Zapamiƒôtywanie wys≈Çanego wcze≈õniej statusu do danego kontaktu.
 * Optymalizacja kodu.
 
 1.0.1.0
 -----
-* Poprawka w wysy≥anym pakiecie XML.
+* Poprawka w wysy≈Çanym pakiecie XML.
 
 1.0.0.2
 -----
-* Kodowanie niedozwolonych znakÛw w opisie.
+* Kodowanie niedozwolonych znak√≥w w opisie.
 
 1.0.0.0
 -----
