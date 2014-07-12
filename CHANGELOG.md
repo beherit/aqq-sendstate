@@ -1,3 +1,9 @@
+1.3.3.0
+-----
+* Poprawki w zapisywaniu w pamięci wysłanego opisu.
+* Nieskórkowanie systemowych okien dialogowych niepochodzących z wtyczki.
+* Aktualizacja komponentów AlphaControls do nowszej wersji (9.10).
+
 1.3.2.0
 -----
 * Zablokowanie funkcjonalności dla kontaktów z sieci Facebook.

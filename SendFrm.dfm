@@ -115,6 +115,7 @@ object SendForm: TSendForm
     MenuSupport.ExtraLineFont.Height = -11
     MenuSupport.ExtraLineFont.Name = 'Tahoma'
     MenuSupport.ExtraLineFont.Style = []
+    Options.OptimizingPriority = opMemory
     SkinDirectory = 'c:\Skins'
     SkinInfo = 'N/A'
     ThirdParty.ThirdEdits = ' '
@@ -139,6 +140,8 @@ object SendForm: TSendForm
     ThirdParty.ThirdUpDown = ' '
     ThirdParty.ThirdScrollBar = ' '
     ThirdParty.ThirdStaticText = ' '
+    ThirdParty.ThirdNativePaint = ' '
+    OnSysDlgInit = sSkinManagerSysDlgInit
     Left = 64
   end
   object sSkinProvider: TsSkinProvider

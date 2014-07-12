@@ -60,6 +60,7 @@ __published:	// IDE-managed Components
 	void __fastcall StateComboBoxDrawItem(TWinControl *Control, int Index, TRect &Rect,
           TOwnerDrawState State);
 	void __fastcall ResetButtonClick(TObject *Sender);
+	void __fastcall sSkinManagerSysDlgInit(TacSysDlgData DlgData, bool &AllowSkinning);
 private:	// User declarations
 public:		// User declarations
 	UnicodeString JID;
