@@ -157,3 +157,10 @@ void __fastcall TSendForm::ResetButtonClick(TObject *Sender)
   StateComboBox->ItemIndex = GetState(UserIdx);
 }
 //---------------------------------------------------------------------------
+
+void __fastcall TSendForm::sSkinManagerSysDlgInit(TacSysDlgData DlgData, bool &AllowSkinning)
+{
+  AllowSkinning = false;
+}
+//---------------------------------------------------------------------------
+

@@ -107,6 +107,20 @@ int GetSaturation()
 }
 //---------------------------------------------------------------------------
 
+//Kodowanie ciagu znakow do Base64
+UnicodeString EncodeBase64(UnicodeString Str)
+{
+  return (wchar_t*)PluginLink.CallService(AQQ_FUNCTION_BASE64,(WPARAM)Str.w_str(),3);
+}
+//---------------------------------------------------------------------------
+
+//Dekodowanie ciagu znakow z Base64
+UnicodeString DecodeBase64(UnicodeString Str)
+{
+  return (wchar_t*)PluginLink.CallService(AQQ_FUNCTION_BASE64,(WPARAM)Str.w_str(),2);
+}
+//---------------------------------------------------------------------------
+
 //Pobieranie aktualnego opisu wskazanego konta
 UnicodeString GetStatus(int UserIdx)
 {
@@ -134,7 +148,7 @@ int GetState(int UserIdx)
 //Pobieranie wybranego wczesniej opisu
 UnicodeString GetChangedStatus(UnicodeString JID, int UserIdx)
 {
-  return ChangedStateList->ReadString("Status", JID, GetStatus(UserIdx));
+  return DecodeBase64(ChangedStateList->ReadString("Status", JID, EncodeBase64(GetStatus(UserIdx))));
 }
 //---------------------------------------------------------------------------
 
@@ -155,8 +169,8 @@ UnicodeString GetIconPath(int Icon)
 void SendXML(UnicodeString JID, int UserIdx, UnicodeString Status, int State)
 {
   //Konwersja specjalnych znakow
-  if(!Status.IsEmpty())
-   Status = (wchar_t*)PluginLink.CallService(AQQ_FUNCTION_CONVERTTOXML,0,(WPARAM)Status.w_str());
+  UnicodeString StatusXML = Status;
+  StatusXML = (wchar_t*)PluginLink.CallService(AQQ_FUNCTION_CONVERTTOXML,0,(WPARAM)StatusXML.w_str());
   //Podstawowe zmienne
   UnicodeString XML;
   UnicodeString ShowType;
@@ -174,22 +188,22 @@ void SendXML(UnicodeString JID, int UserIdx, UnicodeString Status, int State)
   //Tworzenie pakietu XML
   if((State!=5)&&(State!=0))
   {
-	if(!Status.IsEmpty())
-	 XML = "<presence to=\"" + JID + "\"><status>" + Status + "</status><show>" + ShowType + "</show></presence>";
+	if(!StatusXML.IsEmpty())
+	 XML = "<presence to=\"" + JID + "\"><status>" + StatusXML + "</status><show>" + ShowType + "</show></presence>";
 	else
 	 XML = "<presence to=\"" + JID + "\"><status/><show>" + ShowType + "</show></presence>";
   }
   else if(State==5)
   {
-	if(!Status.IsEmpty())
-	 XML = "<presence to=\"" + JID + "\" type=\"" + ShowType + "\"><status>" + Status + "</status></presence>";
+	if(!StatusXML.IsEmpty())
+	 XML = "<presence to=\"" + JID + "\" type=\"" + ShowType + "\"><status>" + StatusXML + "</status></presence>";
 	else
 	 XML = "<presence to=\"" + JID + "\" type=\"" + ShowType+ "\"/>";
   }
   else
   {
-	if(Status!="")
-	 XML = "<presence to=\"" + JID + "\"><status>" + Status + "</status></presence>";
+	if(!StatusXML.IsEmpty())
+	 XML = "<presence to=\"" + JID + "\"><status>" + StatusXML + "</status></presence>";
 	else
 	 XML = "<presence to=\"" + JID + "\"/>";
   }
@@ -204,7 +218,7 @@ void SendXML(UnicodeString JID, int UserIdx, UnicodeString Status, int State)
   //Zapisanie wyslanych danych
   else
   {
-	ChangedStateList->WriteString("Status", JID, Status);
+	ChangedStateList->WriteString("Status", JID, EncodeBase64(Status));
 	ChangedStateList->WriteInteger("State", JID, State);
   }
 }
@@ -229,7 +243,7 @@ LRESULT CALLBACK TimerFrmProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam
 		UnicodeString JID = NewStatus->Strings[Count];
 		//Wyslanie nowego statusu
 		if(!JID.IsEmpty())
-		 SendXML(JID, wParam, ChangedStateList->ReadString("Status", JID, ""), ChangedStateList->ReadInteger("State", JID, 0));
+		 SendXML(JID, wParam, DecodeBase64(ChangedStateList->ReadString("Status", JID, "")), ChangedStateList->ReadInteger("State", JID, 0));
 	  }
 	}
 	delete NewStatus;
@@ -450,11 +464,11 @@ extern "C" PPluginInfo __declspec(dllexport) __stdcall AQQPluginInfo(DWORD AQQVe
 {
   PluginInfo.cbSize = sizeof(TPluginInfo);
   PluginInfo.ShortName = L"SendState";
-  PluginInfo.Version = PLUGIN_MAKE_VERSION(1,3,2,0);
+  PluginInfo.Version = PLUGIN_MAKE_VERSION(1,3,3,0);
   PluginInfo.Description = L"Wtyczka s³u¿y do wysy³ania indywidualnego statusu kontaktom z sieci Jabber. Wystarczy wybraæ kontakt, klikn¹æ w pozycjê \"Wyœlij status\", wybraæ odpowiedni stan oraz zmieniæ opis i klikn¹æ w przycisk \"Wyœlij\".";
-  PluginInfo.Author = L"Krzysztof Grochocki (Beherit)";
+  PluginInfo.Author = L"Krzysztof Grochocki";
   PluginInfo.AuthorMail = L"kontakt@beherit.pl";
-  PluginInfo.Copyright = L"Krzysztof Grochocki (Beherit)";
+  PluginInfo.Copyright = L"Krzysztof Grochocki";
   PluginInfo.Homepage = L"http://beherit.pl";
   PluginInfo.Flag = 0;
   PluginInfo.ReplaceDefaultModule = 0;
