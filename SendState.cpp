@@ -21,9 +21,8 @@
 
 #include <vcl.h>
 #include <windows.h>
-#pragma hdrstop
-#pragma argsused
 #include <PluginAPI.h>
+#pragma hdrstop
 #include "SendFrm.h"
 
 int WINAPI DllEntryPoint(HINSTANCE hinst, unsigned long reason, void* lpReserved)
