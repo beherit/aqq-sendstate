@@ -56,7 +56,7 @@ __fastcall TSendForm::TSendForm(TComponent* Owner)
 void __fastcall TSendForm::WMTransparency(TMessage &Message)
 {
 	Application->ProcessMessages();
-	if(sSkinManager->Active) sSkinProvider->BorderForm->UpdateExBordersPos(true,(int)Message.LParam);
+	if(sSkinManager->Active) sSkinProvider->BorderForm->UpdateExBordersPos(true, (int)Message.LParam);
 }
 //---------------------------------------------------------------------------
 
@@ -130,7 +130,7 @@ void __fastcall TSendForm::aSelectMemoExecute(TObject *Sender)
 void __fastcall TSendForm::SendButtonClick(TObject *Sender)
 {
 	//Wyslanie nowego statusu
-	SendXML(JID,UserIdx,StatusMemo->Text.Trim(),StateComboBox->ItemIndex);
+	SendXML(JID, UserIdx, StatusMemo->Text.Trim(), StateComboBox->ItemIndex);
 	//Zamkniecie formy
 	Close();
 }
@@ -140,8 +140,8 @@ void __fastcall TSendForm::StateComboBoxDrawItem(TWinControl *Control, int Index
 			TOwnerDrawState State)
 {
 	StateComboBox->Canvas->Brush->Style = bsClear;
-	sAlphaImageList->Draw(StateComboBox->Canvas,Rect.Left+3,Rect.Top+3,Index);
-	StateComboBox->Canvas->TextOutW(Rect.Left+22,Rect.Top+4,StateComboBox->Items->Strings[Index]);
+	sAlphaImageList->Draw(StateComboBox->Canvas, Rect.Left+3, Rect.Top+3, Index);
+	StateComboBox->Canvas->TextOutW(Rect.Left+22, Rect.Top+4, StateComboBox->Items->Strings[Index]);
 }
 //---------------------------------------------------------------------------
 

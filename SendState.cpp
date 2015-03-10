@@ -50,7 +50,7 @@ INT_PTR __stdcall OnSystemPopUp(WPARAM wParam, LPARAM lParam);
 //Pobieranie sciezki do skorki kompozycji
 UnicodeString GetThemeSkinDir()
 {
-	return StringReplace((wchar_t*)PluginLink.CallService(AQQ_FUNCTION_GETTHEMEDIR,0,0), "\\", "\\\\", TReplaceFlags() << rfReplaceAll) + "\\\\Skin";
+	return StringReplace((wchar_t*)PluginLink.CallService(AQQ_FUNCTION_GETTHEMEDIR, 0, 0), "\\", "\\\\", TReplaceFlags() << rfReplaceAll) + "\\\\Skin";
 }
 //---------------------------------------------------------------------------
 
@@ -58,11 +58,11 @@ UnicodeString GetThemeSkinDir()
 bool ChkSkinEnabled()
 {
 	TStrings* IniList = new TStringList();
-	IniList->SetText((wchar_t*)PluginLink.CallService(AQQ_FUNCTION_FETCHSETUP,0,0));
+	IniList->SetText((wchar_t*)PluginLink.CallService(AQQ_FUNCTION_FETCHSETUP, 0, 0));
 	TMemIniFile *Settings = new TMemIniFile(ChangeFileExt(Application->ExeName, ".INI"));
 	Settings->SetStrings(IniList);
 	delete IniList;
-	UnicodeString SkinsEnabled = Settings->ReadString("Settings","UseSkin","1");
+	UnicodeString SkinsEnabled = Settings->ReadString("Settings", "UseSkin", "1");
 	delete Settings;
 	return StrToBool(SkinsEnabled);
 }
@@ -72,11 +72,11 @@ bool ChkSkinEnabled()
 bool ChkThemeAnimateWindows()
 {
 	TStrings* IniList = new TStringList();
-	IniList->SetText((wchar_t*)PluginLink.CallService(AQQ_FUNCTION_FETCHSETUP,0,0));
+	IniList->SetText((wchar_t*)PluginLink.CallService(AQQ_FUNCTION_FETCHSETUP, 0, 0));
 	TMemIniFile *Settings = new TMemIniFile(ChangeFileExt(Application->ExeName, ".INI"));
 	Settings->SetStrings(IniList);
 	delete IniList;
-	UnicodeString AnimateWindowsEnabled = Settings->ReadString("Theme","ThemeAnimateWindows","1");
+	UnicodeString AnimateWindowsEnabled = Settings->ReadString("Theme", "ThemeAnimateWindows", "1");
 	delete Settings;
 	return StrToBool(AnimateWindowsEnabled);
 }
@@ -84,11 +84,11 @@ bool ChkThemeAnimateWindows()
 bool ChkThemeGlowing()
 {
 	TStrings* IniList = new TStringList();
-	IniList->SetText((wchar_t*)PluginLink.CallService(AQQ_FUNCTION_FETCHSETUP,0,0));
+	IniList->SetText((wchar_t*)PluginLink.CallService(AQQ_FUNCTION_FETCHSETUP, 0, 0));
 	TMemIniFile *Settings = new TMemIniFile(ChangeFileExt(Application->ExeName, ".INI"));
 	Settings->SetStrings(IniList);
 	delete IniList;
-	UnicodeString GlowingEnabled = Settings->ReadString("Theme","ThemeGlowing","1");
+	UnicodeString GlowingEnabled = Settings->ReadString("Theme", "ThemeGlowing", "1");
 	delete Settings;
 	return StrToBool(GlowingEnabled);
 }
@@ -97,31 +97,31 @@ bool ChkThemeGlowing()
 //Pobieranie ustawien koloru AlphaControls
 int GetHUE()
 {
-	return (int)PluginLink.CallService(AQQ_SYSTEM_COLORGETHUE,0,0);
+	return (int)PluginLink.CallService(AQQ_SYSTEM_COLORGETHUE, 0, 0);
 }
 //---------------------------------------------------------------------------
 int GetSaturation()
 {
-	return (int)PluginLink.CallService(AQQ_SYSTEM_COLORGETSATURATION,0,0);
+	return (int)PluginLink.CallService(AQQ_SYSTEM_COLORGETSATURATION, 0, 0);
 }
 //---------------------------------------------------------------------------
 int GetBrightness()
 {
-	return (int)PluginLink.CallService(AQQ_SYSTEM_COLORGETBRIGHTNESS,0,0);
+	return (int)PluginLink.CallService(AQQ_SYSTEM_COLORGETBRIGHTNESS, 0, 0);
 }
 //---------------------------------------------------------------------------
 
 //Kodowanie ciagu znakow do Base64
 UnicodeString EncodeBase64(UnicodeString Str)
 {
-	return (wchar_t*)PluginLink.CallService(AQQ_FUNCTION_BASE64,(WPARAM)Str.w_str(),3);
+	return (wchar_t*)PluginLink.CallService(AQQ_FUNCTION_BASE64, (WPARAM)Str.w_str(), 3);
 }
 //---------------------------------------------------------------------------
 
 //Dekodowanie ciagu znakow z Base64
 UnicodeString DecodeBase64(UnicodeString Str)
 {
-	return (wchar_t*)PluginLink.CallService(AQQ_FUNCTION_BASE64,(WPARAM)Str.w_str(),2);
+	return (wchar_t*)PluginLink.CallService(AQQ_FUNCTION_BASE64, (WPARAM)Str.w_str(), 2);
 }
 //---------------------------------------------------------------------------
 
@@ -129,7 +129,7 @@ UnicodeString DecodeBase64(UnicodeString Str)
 UnicodeString GetStatus(int UserIdx)
 {
 	TPluginStateChange PluginStateChange;
-	PluginLink.CallService(AQQ_FUNCTION_GETNETWORKSTATE,(WPARAM)(&PluginStateChange),UserIdx);
+	PluginLink.CallService(AQQ_FUNCTION_GETNETWORKSTATE, (WPARAM)(&PluginStateChange), UserIdx);
 	return (wchar_t*)PluginStateChange.Status;
 }
 //---------------------------------------------------------------------------
@@ -139,7 +139,7 @@ int GetState(int UserIdx)
 {
 	//Pobranie aktualnego stanu konta
 	TPluginStateChange PluginStateChange;
-	PluginLink.CallService(AQQ_FUNCTION_GETNETWORKSTATE,(WPARAM)(&PluginStateChange),UserIdx);
+	PluginLink.CallService(AQQ_FUNCTION_GETNETWORKSTATE, (WPARAM)(&PluginStateChange), UserIdx);
 	int State = PluginStateChange.NewState;
 	//Zwrocenie odpowiedniego indeksu
 	if((State==0)||(State==6))
@@ -166,7 +166,7 @@ int GetChangedState(UnicodeString JID, int UserIdx)
 //Pobieranie sciezki ikony z interfejsu AQQ
 UnicodeString GetIconPath(int Icon)
 {
-	return StringReplace((wchar_t*)PluginLink.CallService(AQQ_FUNCTION_GETPNG_FILEPATH,Icon,0), "\\", "\\\\", TReplaceFlags() << rfReplaceAll);
+	return StringReplace((wchar_t*)PluginLink.CallService(AQQ_FUNCTION_GETPNG_FILEPATH, Icon, 0), "\\", "\\\\", TReplaceFlags() << rfReplaceAll);
 }
 //--------------------------------------------------------------------------
 
@@ -174,7 +174,7 @@ void SendXML(UnicodeString JID, int UserIdx, UnicodeString Status, int State)
 {
 	//Konwersja specjalnych znakow
 	UnicodeString StatusXML = Status;
-	StatusXML = (wchar_t*)PluginLink.CallService(AQQ_FUNCTION_CONVERTTOXML,0,(WPARAM)StatusXML.w_str());
+	StatusXML = (wchar_t*)PluginLink.CallService(AQQ_FUNCTION_CONVERTTOXML, 0, (WPARAM)StatusXML.w_str());
 	//Podstawowe zmienne
 	UnicodeString XML;
 	UnicodeString ShowType;
@@ -212,7 +212,7 @@ void SendXML(UnicodeString JID, int UserIdx, UnicodeString Status, int State)
 			XML = "<presence to=\"" + JID + "\"/>";
 	}
 	//Wysylanie pakietu XML
-	PluginLink.CallService(AQQ_SYSTEM_SENDXML,(WPARAM)XML.w_str(),UserIdx);
+	PluginLink.CallService(AQQ_SYSTEM_SENDXML, (WPARAM)XML.w_str(), UserIdx);
 	//Usuniecie zapisanych wczesniej danych
 	if((Status==GetStatus(UserIdx))&&(State==GetState(UserIdx)))
 	{
@@ -234,10 +234,10 @@ LRESULT CALLBACK TimerFrmProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam
 	if(uMsg==WM_TIMER)
 	{
 		//Zatrzymanie timera
-		KillTimer(hTimerFrm,wParam);
+		KillTimer(hTimerFrm, wParam);
 		//Sprawdzanie czy zostaly wyslane jakies statusy kontaktom
 		TStringList *NewStatus = new TStringList;
-		ChangedStateList->ReadSection("Status",NewStatus);
+		ChangedStateList->ReadSection("Status", NewStatus);
 		if(NewStatus->Count>0)
 		{
 			//Sprawdzanie zapisanych identyfikatorow kontaktow
@@ -297,7 +297,7 @@ void ChangeItemState(bool Enabled, bool Checked)
 	PluginActionEdit.Visible = Enabled;
 	PluginActionEdit.IconIndex = -1;
 	PluginActionEdit.Checked = Checked;
-	PluginLink.CallService(AQQ_CONTROLS_EDITPOPUPMENUITEM,0,(LPARAM)(&PluginActionEdit));
+	PluginLink.CallService(AQQ_CONTROLS_EDITPOPUPMENUITEM, 0, (LPARAM)(&PluginActionEdit));
 }
 //---------------------------------------------------------------------------
 
@@ -308,7 +308,7 @@ void DestroySendStateItem()
 	ZeroMemory(&SendStateItem, sizeof(TPluginAction));
 	SendStateItem.cbSize = sizeof(TPluginAction);
 	SendStateItem.pszName = L"SendStateItem";
-	PluginLink.CallService(AQQ_CONTROLS_DESTROYPOPUPMENUITEM,0,(LPARAM)(&SendStateItem));
+	PluginLink.CallService(AQQ_CONTROLS_DESTROYPOPUPMENUITEM, 0, (LPARAM)(&SendStateItem));
 }
 //---------------------------------------------------------------------------
 
@@ -325,7 +325,7 @@ void BuildSendStateItem()
 	SendStateItem.pszService = L"sSendStateItem";
 	SendStateItem.pszPopupName = L"muItem";
 	SendStateItem.PopupPosition = 0;
-	PluginLink.CallService(AQQ_CONTROLS_CREATEPOPUPMENUITEM,0,(LPARAM)(&SendStateItem));
+	PluginLink.CallService(AQQ_CONTROLS_CREATEPOPUPMENUITEM, 0, (LPARAM)(&SendStateItem));
 }
 //---------------------------------------------------------------------------
 
@@ -353,13 +353,13 @@ INT_PTR __stdcall OnStateChange(WPARAM wParam, LPARAM lParam)
 {
 	//Sprawdzanie czy zostaly wyslane jakies statusy kontaktom
 	TStringList *NewStatus = new TStringList;
-	ChangedStateList->ReadSection("Status",NewStatus);
+	ChangedStateList->ReadSection("Status", NewStatus);
 	if(NewStatus->Count>0)
 	{
 		//Pobranie danych dotyczacych konta
 		TPluginStateChange StateChange = *(PPluginStateChange)lParam;
 		//Wlaczenie timera wysylania ustawionych statusow dla kontaktow
-		SetTimer(hTimerFrm,StateChange.UserIdx,10,(TIMERPROC)TimerFrmProc);
+		SetTimer(hTimerFrm, StateChange.UserIdx, 10, (TIMERPROC)TimerFrmProc);
 	}
 	delete NewStatus;
 
@@ -397,11 +397,11 @@ INT_PTR __stdcall OnSystemPopUp(WPARAM wParam, LPARAM lParam)
 			//Pobieranie indeksu konta
 			ContactUserIdx = SystemPopUContact.UserIdx;
 			//Pokazanie przycisku w interfejsie
-			ChangeItemState(true,ChangedStateList->ValueExists("Status", ContactJID));
+			ChangeItemState(true, ChangedStateList->ValueExists("Status",  ContactJID));
 		}
 		//Ukrycie przycisku z interfejsu
 		else
-			ChangeItemState(false,false);
+			ChangeItemState(false, false);
 	}
 
 	return 0;
@@ -413,15 +413,15 @@ extern "C" INT_PTR __declspec(dllexport) __stdcall Load(PPluginLink Link)
 	//Linkowanie wtyczki z komunikatorem
 	PluginLink = *Link;
 	//Tworzenie serwisu dla przycisku
-	PluginLink.CreateServiceFunction(L"sSendStateItem",SendStateService);
+	PluginLink.CreateServiceFunction(L"sSendStateItem", SendStateService);
 	//Tworzenie przycisku w interfejsie
 	BuildSendStateItem();
 	//Hook na zmianê stanu kontaktu
-	PluginLink.HookEvent(AQQ_CONTACTS_UPDATE,OnContactsUpdate);
+	PluginLink.HookEvent(AQQ_CONTACTS_UPDATE, OnContactsUpdate);
 	//Hook dla zmiany stanu
-	PluginLink.HookEvent(AQQ_SYSTEM_STATECHANGE,OnStateChange);
+	PluginLink.HookEvent(AQQ_SYSTEM_STATECHANGE, OnStateChange);
 	//Hook na pokazywanie popupmenu
-	PluginLink.HookEvent(AQQ_SYSTEM_POPUP,OnSystemPopUp);
+	PluginLink.HookEvent(AQQ_SYSTEM_POPUP, OnSystemPopUp);
 	//Rejestowanie klasy okna timera
 	WNDCLASSEX wincl;
 	wincl.cbSize = sizeof (WNDCLASSEX);
@@ -438,7 +438,7 @@ extern "C" INT_PTR __declspec(dllexport) __stdcall Load(PPluginLink Link)
 	wincl.hIconSm = LoadIcon(NULL, IDI_APPLICATION);
 	RegisterClassEx(&wincl);
 	//Tworzenie okna timera
-	hTimerFrm = CreateWindowEx(0, L"TSendStateTimer", L"",	0, 0, 0, 0, 0, NULL, NULL, HInstance, NULL);
+	hTimerFrm = CreateWindowEx(0, L"TSendStateTimer", L"", 0, 0, 0, 0, 0, NULL, NULL, HInstance, NULL);
 
 	return 0;
 }
@@ -449,7 +449,7 @@ extern "C" INT_PTR __declspec(dllexport) __stdcall Unload()
 	//Usuwanie okna timera
 	DestroyWindow(hTimerFrm);
 	//Wyrejestowanie klasy okna timera
-	UnregisterClass(L"TSendStateTimer",HInstance);
+	UnregisterClass(L"TSendStateTimer", HInstance);
 	//Usuniecie przycisku z interfejsu
 	DestroySendStateItem();
 	//Usuniecie serwisu dla przyciku
