@@ -35,9 +35,9 @@ object SendForm: TSendForm
   end
   object StatusMemo: TsMemo
     Left = 8
-    Top = 41
+    Top = 42
     Width = 185
-    Height = 89
+    Height = 88
     ScrollBars = ssVertical
     TabOrder = 1
     BoundLabel.Indent = 0
@@ -65,7 +65,7 @@ object SendForm: TSendForm
     Left = 8
     Top = 8
     Width = 185
-    Height = 27
+    Height = 28
     Alignment = taLeftJustify
     BoundLabel.Indent = 0
     BoundLabel.Font.Charset = DEFAULT_CHARSET
@@ -79,7 +79,7 @@ object SendForm: TSendForm
     SkinData.SkinSection = 'COMBOBOX'
     VerticalAlignment = taAlignTop
     Style = csOwnerDrawFixed
-    ItemHeight = 21
+    ItemHeight = 22
     ItemIndex = 0
     TabOrder = 0
     Text = 'Po'#322#261'czony'
