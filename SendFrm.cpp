@@ -39,8 +39,9 @@ __declspec(dllimport)UnicodeString GetThemeSkinDir();
 __declspec(dllimport)bool ChkSkinEnabled();
 __declspec(dllimport)bool ChkThemeAnimateWindows();
 __declspec(dllimport)bool ChkThemeGlowing();
-__declspec(dllimport)int GetSaturation();
 __declspec(dllimport)int GetHUE();
+__declspec(dllimport)int GetSaturation();
+__declspec(dllimport)int GetBrightness();
 __declspec(dllimport)void SendXML(UnicodeString JID, int UserIdx, UnicodeString Status, int State);
 __declspec(dllimport)UnicodeString GetIconPath(int Icon);
 __declspec(dllimport)UnicodeString GetStatus(int UserIdx);
@@ -83,6 +84,10 @@ void __fastcall TSendForm::FormCreate(TObject *Sender)
 			if(ChkThemeAnimateWindows()) sSkinManager->AnimEffects->FormShow->Time = 200;
 			else sSkinManager->AnimEffects->FormShow->Time = 0;
 			sSkinManager->Effects->AllowGlowing = ChkThemeGlowing();
+			//Zmiana kolorystyki AlphaControls
+			sSkinManager->HueOffset = GetHUE();
+			sSkinManager->Saturation = GetSaturation();
+			sSkinManager->Brightness = GetBrightness();
 			//Aktywacja skorkowania AlphaControls
 			sSkinManager->Active = true;
 		}
@@ -112,13 +117,6 @@ void __fastcall TSendForm::FormShow(TObject *Sender)
 	//Ustawianie fokusa na polu wpisywania opisu
 	StatusMemo->SetFocus();
 	StatusMemo->SelectAll();
-	//Wlaczona zaawansowana stylizacja okien
-	if(sSkinManager->Active)
-	{
-		//Zmiana kolorystyki AlphaControls
-		sSkinManager->HueOffset = GetHUE();
-		sSkinManager->Saturation = GetSaturation();
-	}
 }
 //---------------------------------------------------------------------------
 
