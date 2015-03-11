@@ -21,10 +21,10 @@ object SendStateForm: TSendStateForm
   TextHeight = 13
   object ResetButton: TsSpeedButton
     Tag = 4
-    Left = 10
+    Left = 8
     Top = 136
-    Width = 23
-    Height = 22
+    Width = 25
+    Height = 25
     Hint = 'Przywr'#243#263' aktualny opis i status'
     Flat = True
     ParentShowHint = False
