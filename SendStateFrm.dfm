@@ -23,7 +23,7 @@ object SendStateForm: TSendStateForm
     Tag = 4
     Left = 8
     Top = 136
-    Width = 25
+    Width = 28
     Height = 25
     Hint = 'Przywr'#243#263' aktualny opis i status'
     Flat = True
