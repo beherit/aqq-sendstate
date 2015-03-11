@@ -20,8 +20,8 @@
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
-#ifndef SendFrmH
-#define SendFrmH
+#ifndef SendStateFrmH
+#define SendStateFrmH
 #define WM_ALPHAWINDOWS (WM_USER + 666)
 //---------------------------------------------------------------------------
 #include "acAlphaImageList.hpp"
@@ -39,7 +39,7 @@
 #include <Vcl.ImgList.hpp>
 #include <Vcl.StdCtrls.hpp>
 //---------------------------------------------------------------------------
-class TSendForm : public TForm
+class TSendStateForm : public TForm
 {
 __published:	// IDE-managed Components
 	TsMemo *StatusMemo;
@@ -65,13 +65,13 @@ private:	// User declarations
 public:		// User declarations
 	UnicodeString JID;
 	int UserIdx;
-	__fastcall TSendForm(TComponent* Owner);
+	__fastcall TSendStateForm(TComponent* Owner);
 	void __fastcall WMTransparency(TMessage &Message);
 	BEGIN_MESSAGE_MAP
 	MESSAGE_HANDLER(WM_ALPHAWINDOWS,TMessage,WMTransparency);
 	END_MESSAGE_MAP(TForm)
 };
 //---------------------------------------------------------------------------
-extern PACKAGE TSendForm *SendForm;
+extern PACKAGE TSendStateForm *SendStateForm;
 //---------------------------------------------------------------------------
 #endif

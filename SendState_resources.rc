@@ -1,0 +1,4 @@
+EN_CONST DATA "Languages\\EN\\Const.lng"
+EN_SENDSTATEFRM DATA "Languages\\EN\\TSendStateForm.lng"
+PL_CONST DATA "Languages\\PL\\Const.lng"
+PL_SENDSTATEFRM DATA "Languages\\PL\\TSendStateForm.lng"

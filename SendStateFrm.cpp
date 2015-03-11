@@ -21,8 +21,9 @@
 
 //---------------------------------------------------------------------------
 #include <vcl.h>
+#include <LangAPI.hpp>
 #pragma hdrstop
-#include "SendFrm.h"
+#include "SendStateFrm.h"
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
 #pragma link "acAlphaImageList"
@@ -33,7 +34,7 @@
 #pragma link "sSkinProvider"
 #pragma link "sSpeedButton"
 #pragma resource "*.dfm"
-TSendForm *SendForm;
+TSendStateForm *SendStateForm;
 //---------------------------------------------------------------------------
 __declspec(dllimport)UnicodeString GetThemeSkinDir();
 __declspec(dllimport)bool ChkSkinEnabled();
@@ -47,28 +48,30 @@ __declspec(dllimport)UnicodeString GetIconPath(int Icon);
 __declspec(dllimport)UnicodeString GetStatus(int UserIdx);
 __declspec(dllimport)int GetState(int UserIdx);
 //---------------------------------------------------------------------------
-__fastcall TSendForm::TSendForm(TComponent* Owner)
+__fastcall TSendStateForm::TSendStateForm(TComponent* Owner)
 	: TForm(Owner)
 {
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TSendForm::WMTransparency(TMessage &Message)
+void __fastcall TSendStateForm::WMTransparency(TMessage &Message)
 {
 	Application->ProcessMessages();
 	if(sSkinManager->Active) sSkinProvider->BorderForm->UpdateExBordersPos(true, (int)Message.LParam);
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TSendForm::aExitExecute(TObject *Sender)
+void __fastcall TSendStateForm::aExitExecute(TObject *Sender)
 {
 	//Zamkniecie formy
 	Close();
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TSendForm::FormCreate(TObject *Sender)
+void __fastcall TSendStateForm::FormCreate(TObject *Sender)
 {
+	//Lokalizowanie formy
+	LangForm(this);
 	//Wlaczona zaawansowana stylizacja okien
 	if(ChkSkinEnabled())
 	{
@@ -99,7 +102,7 @@ void __fastcall TSendForm::FormCreate(TObject *Sender)
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TSendForm::FormShow(TObject *Sender)
+void __fastcall TSendStateForm::FormShow(TObject *Sender)
 {
 	//Wczytanie ikon z interfesju AQQ
 	sAlphaImageList->AcBeginUpdate();
@@ -120,14 +123,14 @@ void __fastcall TSendForm::FormShow(TObject *Sender)
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TSendForm::aSelectMemoExecute(TObject *Sender)
+void __fastcall TSendStateForm::aSelectMemoExecute(TObject *Sender)
 {
 	//Zaznaczenie calego tekstu
 	StatusMemo->SelectAll();
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TSendForm::SendButtonClick(TObject *Sender)
+void __fastcall TSendStateForm::SendButtonClick(TObject *Sender)
 {
 	//Wyslanie nowego statusu
 	SendXML(JID, UserIdx, StatusMemo->Text.Trim(), StateComboBox->ItemIndex);
@@ -136,7 +139,7 @@ void __fastcall TSendForm::SendButtonClick(TObject *Sender)
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TSendForm::StateComboBoxDrawItem(TWinControl *Control, int Index, TRect &Rect,
+void __fastcall TSendStateForm::StateComboBoxDrawItem(TWinControl *Control, int Index, TRect &Rect,
 			TOwnerDrawState State)
 {
 	StateComboBox->Canvas->Brush->Style = bsClear;
@@ -145,7 +148,7 @@ void __fastcall TSendForm::StateComboBoxDrawItem(TWinControl *Control, int Index
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TSendForm::ResetButtonClick(TObject *Sender)
+void __fastcall TSendStateForm::ResetButtonClick(TObject *Sender)
 {
 	//Przywracanie aktualnego opisu
 	StatusMemo->Text = GetStatus(UserIdx);
@@ -154,7 +157,7 @@ void __fastcall TSendForm::ResetButtonClick(TObject *Sender)
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TSendForm::sSkinManagerSysDlgInit(TacSysDlgData DlgData, bool &AllowSkinning)
+void __fastcall TSendStateForm::sSkinManagerSysDlgInit(TacSysDlgData DlgData, bool &AllowSkinning)
 {
 	AllowSkinning = false;
 }
