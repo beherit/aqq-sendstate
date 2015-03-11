@@ -425,10 +425,10 @@ INT_PTR __stdcall OnSystemPopUp(WPARAM wParam, LPARAM lParam)
 		{
 			//Zapisanie identyfikatora kontatku w zmiennej globalnej
 			ContactJID = JID;
-			//Zapisanie indeksu konta
+			//Zapisanie indeksu konta w zmiennej globalnej
 			ContactUserIdx = SystemPopUContact.UserIdx;
 			//Pokazanie przycisku w interfejsie
-			ChangeItemState(true, ((ChangedStateList->ValueExists("Status:"+IntToStr(ContactUserIdx), ContactJID))||(ChangedStateList->ValueExists("State:"+IntToStr(ContactUserIdx), ContactJID))));
+			ChangeItemState(true, ChangedStateList->ValueExists("Idx:"+IntToStr(ContactUserIdx), ContactJID));
 		}
 		//Ukrycie przycisku z interfejsu
 		else
