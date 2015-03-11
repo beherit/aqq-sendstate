@@ -1,4 +1,5 @@
-object SendForm: TSendForm
+object SendStateForm: TSendStateForm
+  Tag = 1
   Left = 0
   Top = 0
   BorderIcons = [biSystemMenu]
@@ -19,6 +20,7 @@ object SendForm: TSendForm
   PixelsPerInch = 96
   TextHeight = 13
   object ResetButton: TsSpeedButton
+    Tag = 4
     Left = 10
     Top = 136
     Width = 23
@@ -52,6 +54,7 @@ object SendForm: TSendForm
     SkinData.SkinSection = 'EDIT'
   end
   object SendButton: TsButton
+    Tag = 3
     Left = 118
     Top = 136
     Width = 75
@@ -62,6 +65,7 @@ object SendForm: TSendForm
     SkinData.SkinSection = 'BUTTON'
   end
   object StateComboBox: TsComboBox
+    Tag = 2
     Left = 8
     Top = 8
     Width = 185
@@ -80,17 +84,9 @@ object SendForm: TSendForm
     VerticalAlignment = taAlignTop
     Style = csOwnerDrawFixed
     ItemHeight = 22
-    ItemIndex = 0
+    ItemIndex = -1
     TabOrder = 0
-    Text = 'Po'#322#261'czony'
     OnDrawItem = StateComboBoxDrawItem
-    Items.Strings = (
-      'Po'#322#261'czony'
-      'Wolny'
-      'Oddalony'
-      'Nieobecny'
-      'Nie przeszkadza'#263
-      'Roz'#322#261'czony')
   end
   object ActionList: TActionList
     Left = 32

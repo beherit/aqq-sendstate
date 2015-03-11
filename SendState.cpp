@@ -21,9 +21,11 @@
 
 #include <vcl.h>
 #include <windows.h>
+#include <IdHashMessageDigest.hpp>
 #include <PluginAPI.h>
+#include <LangAPI.hpp>
 #pragma hdrstop
-#include "SendFrm.h"
+#include "SendStateFrm.h"
 
 int WINAPI DllEntryPoint(HINSTANCE hinst, unsigned long reason, void* lpReserved)
 {
@@ -43,8 +45,16 @@ TCustomIniFile* ChangedStateList = new TMemIniFile(ChangeFileExt(Application->Ex
 HWND hTimerFrm;
 //FORWARD-AQQ-HOOKS----------------------------------------------------------
 INT_PTR __stdcall OnContactsUpdate(WPARAM wParam, LPARAM lParam);
+INT_PTR __stdcall OnLangCodeChanged(WPARAM wParam, LPARAM lParam);
 INT_PTR __stdcall OnStateChange(WPARAM wParam, LPARAM lParam);
 INT_PTR __stdcall OnSystemPopUp(WPARAM wParam, LPARAM lParam);
+//---------------------------------------------------------------------------
+
+//Pobieranie sciezki katalogu prywatnego wtyczek
+UnicodeString GetPluginUserDir()
+{
+	return StringReplace((wchar_t*)PluginLink.CallService(AQQ_FUNCTION_GETPLUGINUSERDIR,0,0), "\\", "\\\\", TReplaceFlags() << rfReplaceAll);
+}
 //---------------------------------------------------------------------------
 
 //Pobieranie sciezki do skorki kompozycji
@@ -261,23 +271,23 @@ LRESULT CALLBACK TimerFrmProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam
 INT_PTR __stdcall SendStateService(WPARAM wParam, LPARAM lParam)
 {
 	//Tworzenie uchwytu do formy
-	Application->Handle = (HWND)SendForm;
-	TSendForm * hSendForm = new TSendForm(Application);
+	Application->Handle = (HWND)SendStateForm;
+	TSendStateForm * hSendStateForm = new TSendStateForm(Application);
 	//Przekazywanie zmiennych do formy
-	hSendForm->JID = ContactJID;
-	hSendForm->UserIdx = ContactUserIdx;
+	hSendStateForm->JID = ContactJID;
+	hSendStateForm->UserIdx = ContactUserIdx;
 	//Wstawianie danych do komponentow
-	hSendForm->StatusMemo->Text = GetChangedStatus(ContactJID, ContactUserIdx);
-	hSendForm->StateComboBox->ItemIndex = GetChangedState(ContactJID, ContactUserIdx);
+	hSendStateForm->StatusMemo->Text = GetChangedStatus(ContactJID, ContactUserIdx);
+	hSendStateForm->StateComboBox->ItemIndex = GetChangedState(ContactJID, ContactUserIdx);
 	//Pokazywanie przycisku do przywracania opisu/statusu
-	if((hSendForm->StatusMemo->Text!=GetStatus(ContactUserIdx))||(hSendForm->StateComboBox->ItemIndex!=GetState(ContactUserIdx)))
-		hSendForm->ResetButton->Visible = true;
+	if((hSendStateForm->StatusMemo->Text!=GetStatus(ContactUserIdx))||(hSendStateForm->StateComboBox->ItemIndex!=GetState(ContactUserIdx)))
+		hSendStateForm->ResetButton->Visible = true;
 	else
-		hSendForm->ResetButton->Visible = false;
+		hSendStateForm->ResetButton->Visible = false;
 	//Pokazywanie formy
-	hSendForm->ShowModal();
+	hSendStateForm->ShowModal();
 	//Usuwanie uchwytu do formy
-	delete hSendForm;
+	delete hSendStateForm;
 
 	return 0;
 }
@@ -289,7 +299,7 @@ void ChangeItemState(bool Enabled, bool Checked)
 	TPluginActionEdit PluginActionEdit;
 	PluginActionEdit.cbSize = sizeof(TPluginActionEdit);
 	PluginActionEdit.pszName = L"SendStateItem";
-	PluginActionEdit.Caption = L"Wyœlij status";
+	PluginActionEdit.Caption = GetLangStr("SendStateItem").w_str();
 	PluginActionEdit.Hint = L"";
 	PluginActionEdit.Enabled = Enabled;
 	PluginActionEdit.Visible = Enabled;
@@ -317,7 +327,7 @@ void BuildSendStateItem()
 	ZeroMemory(&SendStateItem, sizeof(TPluginAction));
 	SendStateItem.cbSize = sizeof(TPluginAction);
 	SendStateItem.pszName = L"SendStateItem";
-	SendStateItem.pszCaption = L"Wyœlij status";
+	SendStateItem.pszCaption = GetLangStr("SendStateItem").w_str();
 	SendStateItem.Position = 5;
 	SendStateItem.IconIndex = -1;
 	SendStateItem.pszService = L"sSendStateItem";
@@ -342,6 +352,26 @@ INT_PTR __stdcall OnContactsUpdate(WPARAM wParam, LPARAM lParam)
 		//Sprawdzanie czy dla kontatku zostal wyslany inny status
 		if((ChangedStateList->ValueExists("Status:"+IntToStr(UserIdx), JID))||(ChangedStateList->ValueExists("State:"+IntToStr(UserIdx), JID)))
 			SendXML(JID, UserIdx, GetChangedStatus(JID, UserIdx), GetChangedState(JID, UserIdx));
+	}
+
+	return 0;
+}
+//---------------------------------------------------------------------------
+
+//Hook na zmiane lokalizacji
+INT_PTR __stdcall OnLangCodeChanged(WPARAM wParam, LPARAM lParam)
+{
+	//Czyszczenie cache lokalizacji
+	ClearLngCache();
+	//Pobranie sciezki do katalogu prywatnego uzytkownika
+	UnicodeString PluginUserDir = GetPluginUserDir();
+	//Ustawienie sciezki lokalizacji wtyczki
+	UnicodeString LangCode = (wchar_t*)lParam;
+	LangPath = PluginUserDir + "\\\\Languages\\\\SendState\\\\" + LangCode + "\\\\";
+	if(!DirectoryExists(LangPath))
+	{
+		LangCode = (wchar_t*)PluginLink.CallService(AQQ_FUNCTION_GETDEFLANGCODE,0,0);
+		LangPath = PluginUserDir + "\\\\Languages\\\\SendState\\\\" + LangCode + "\\\\";
 	}
 
 	return 0;
@@ -409,16 +439,100 @@ INT_PTR __stdcall OnSystemPopUp(WPARAM wParam, LPARAM lParam)
 }
 //---------------------------------------------------------------------------
 
+//Zapisywanie zasobów
+void ExtractRes(wchar_t* FileName, wchar_t* ResName, wchar_t* ResType)
+{
+	TPluginTwoFlagParams PluginTwoFlagParams;
+	PluginTwoFlagParams.cbSize = sizeof(TPluginTwoFlagParams);
+	PluginTwoFlagParams.Param1 = ResName;
+	PluginTwoFlagParams.Param2 = ResType;
+	PluginTwoFlagParams.Flag1 = (int)HInstance;
+	PluginLink.CallService(AQQ_FUNCTION_SAVERESOURCE,(WPARAM)&PluginTwoFlagParams,(LPARAM)FileName);
+}
+//---------------------------------------------------------------------------
+
+//Obliczanie sumy kontrolnej pliku
+UnicodeString MD5File(UnicodeString FileName)
+{
+	if(FileExists(FileName))
+	{
+		UnicodeString Result;
+		TFileStream *fs;
+		fs = new TFileStream(FileName, fmOpenRead | fmShareDenyWrite);
+		try
+		{
+			TIdHashMessageDigest5 *idmd5= new TIdHashMessageDigest5();
+			try
+			{
+				Result = idmd5->HashStreamAsHex(fs);
+			}
+			__finally
+			{
+				delete idmd5;
+			}
+		}
+		__finally
+		{
+			delete fs;
+		}
+		return Result;
+	}
+	else return 0;
+}
+//---------------------------------------------------------------------------
+
 extern "C" INT_PTR __declspec(dllexport) __stdcall Load(PPluginLink Link)
 {
 	//Linkowanie wtyczki z komunikatorem
 	PluginLink = *Link;
+  //Pobranie sciezki do prywatnego folderu wtyczek
+	UnicodeString PluginUserDir = GetPluginUserDir();
+  //Tworzenie katalogow lokalizacji
+	if(!DirectoryExists(PluginUserDir+"\\\\Languages"))
+		CreateDir(PluginUserDir+"\\\\Languages");
+	if(!DirectoryExists(PluginUserDir+"\\\\Languages\\\\SendState"))
+		CreateDir(PluginUserDir+"\\\\Languages\\\\SendState");
+	if(!DirectoryExists(PluginUserDir+"\\\\Languages\\\\SendState\\\\EN"))
+		CreateDir(PluginUserDir+"\\\\Languages\\\\SendState\\\\EN");
+	if(!DirectoryExists(PluginUserDir+"\\\\Languages\\\\SendState\\\\PL"))
+		CreateDir(PluginUserDir+"\\\\Languages\\\\SendState\\\\PL");
+	//Wypakowanie plikow lokalizacji
+	//9B2EC6CCC372B9805AD484B9BAD69098
+	if(!FileExists(PluginUserDir+"\\\\Languages\\\\SendState\\\\EN\\\\Const.lng"))
+		ExtractRes((PluginUserDir+"\\\\Languages\\\\SendState\\\\EN\\\\Const.lng").w_str(),L"EN_CONST",L"DATA");
+	else if(MD5File(PluginUserDir+"\\\\Languages\\\\SendState\\\\EN\\\\Const.lng")!="9B2EC6CCC372B9805AD484B9BAD69098")
+		ExtractRes((PluginUserDir+"\\\\Languages\\\\SendState\\\\EN\\\\Const.lng").w_str(),L"EN_CONST",L"DATA");
+	//EB5EE165E3E14B4E72668083A335F628
+	if(!FileExists(PluginUserDir+"\\\\Languages\\\\SendState\\\\EN\\\\TSendStateForm.lng"))
+		ExtractRes((PluginUserDir+"\\\\Languages\\\\SendState\\\\EN\\\\TSendStateForm.lng").w_str(),L"EN_SENDSTATEFRM",L"DATA");
+	else if(MD5File(PluginUserDir+"\\\\Languages\\\\SendState\\\\EN\\\\TSendStateForm.lng")!="EB5EE165E3E14B4E72668083A335F628")
+		ExtractRes((PluginUserDir+"\\\\Languages\\\\SendState\\\\EN\\\\TSendStateForm.lng").w_str(),L"EN_SENDSTATEFRM",L"DATA");
+	//66263DCB82136562906AE9FF28DF174D
+	if(!FileExists(PluginUserDir+"\\\\Languages\\\\SendState\\\\PL\\\\Const.lng"))
+		ExtractRes((PluginUserDir+"\\\\Languages\\\\SendState\\\\PL\\\\Const.lng").w_str(),L"PL_CONST",L"DATA");
+	else if(MD5File(PluginUserDir+"\\\\Languages\\\\SendState\\\\PL\\\\Const.lng")!="66263DCB82136562906AE9FF28DF174D")
+		ExtractRes((PluginUserDir+"\\\\Languages\\\\SendState\\\\PL\\\\Const.lng").w_str(),L"PL_CONST",L"DATA");
+	//AD71E71FCFEE35C3214B05DACE5206AB
+	if(!FileExists(PluginUserDir+"\\\\Languages\\\\SendState\\\\PL\\\\TSendStateForm.lng"))
+		ExtractRes((PluginUserDir+"\\\\Languages\\\\SendState\\\\PL\\\\TSendStateForm.lng").w_str(),L"PL_SENDSTATEFRM",L"DATA");
+	else if(MD5File(PluginUserDir+"\\\\Languages\\\\SendState\\\\PL\\\\TSendStateForm.lng")!="AD71E71FCFEE35C3214B05DACE5206AB")
+		ExtractRes((PluginUserDir+"\\\\Languages\\\\SendState\\\\PL\\\\TSendStateForm.lng").w_str(),L"PL_SENDSTATEFRM",L"DATA");
+	//Ustawienie sciezki lokalizacji wtyczki
+	UnicodeString LangCode = (wchar_t*)PluginLink.CallService(AQQ_FUNCTION_GETLANGCODE,0,0);
+	LangPath = PluginUserDir + "\\\\Languages\\\\SendState\\\\" + LangCode + "\\\\";
+	if(!DirectoryExists(LangPath))
+	{
+		LangCode = (wchar_t*)PluginLink.CallService(AQQ_FUNCTION_GETDEFLANGCODE,0,0);
+		LangPath = PluginUserDir + "\\\\Languages\\\\SendState\\\\" + LangCode + "\\\\";
+	}
 	//Tworzenie serwisu dla przycisku
 	PluginLink.CreateServiceFunction(L"sSendStateItem", SendStateService);
 	//Tworzenie przycisku w interfejsie
 	BuildSendStateItem();
 	//Hook na zmianê stanu kontaktu
 	PluginLink.HookEvent(AQQ_CONTACTS_UPDATE, OnContactsUpdate);
+	//Hook na zmiane lokalizacji
+	PluginLink.HookEvent(AQQ_SYSTEM_LANGCODE_CHANGED,OnLangCodeChanged);
 	//Hook dla zmiany stanu
 	PluginLink.HookEvent(AQQ_SYSTEM_STATECHANGE, OnStateChange);
 	//Hook na pokazywanie popupmenu
@@ -457,6 +571,7 @@ extern "C" INT_PTR __declspec(dllexport) __stdcall Unload()
 	PluginLink.DestroyServiceFunction(SendStateService);
 	//Wyladowanie hookow
 	PluginLink.UnhookEvent(OnContactsUpdate);
+	PluginLink.UnhookEvent(OnLangCodeChanged);
 	PluginLink.UnhookEvent(OnStateChange);
 	PluginLink.UnhookEvent(OnSystemPopUp);
 
