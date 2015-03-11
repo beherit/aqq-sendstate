@@ -152,14 +152,14 @@ int GetState(int UserIdx)
 //Pobieranie wybranego wczesniej opisu
 UnicodeString GetChangedStatus(UnicodeString JID, int UserIdx)
 {
-	return DecodeBase64(ChangedStateList->ReadString("Status", JID, EncodeBase64(GetStatus(UserIdx))));
+	return DecodeBase64(ChangedStateList->ReadString("Status:"+IntToStr(UserIdx), JID, EncodeBase64(GetStatus(UserIdx))));
 }
 //---------------------------------------------------------------------------
 
 //Pobieranie wybranego wczesniej stanu
 int GetChangedState(UnicodeString JID, int UserIdx)
 {
-	return ChangedStateList->ReadInteger("State", JID, GetState(UserIdx));
+	return ChangedStateList->ReadInteger("State:"+IntToStr(UserIdx), JID, GetState(UserIdx));
 }
 //---------------------------------------------------------------------------
 
@@ -214,17 +214,13 @@ void SendXML(UnicodeString JID, int UserIdx, UnicodeString Status, int State)
 	//Wysylanie pakietu XML
 	PluginLink.CallService(AQQ_SYSTEM_SENDXML, (WPARAM)XML.w_str(), UserIdx);
 	//Usuniecie zapisanych wczesniej danych
-	if((Status==GetStatus(UserIdx))&&(State==GetState(UserIdx)))
-	{
-		ChangedStateList->DeleteKey("Status", JID);
-		ChangedStateList->DeleteKey("State", JID);
-	}
+	ChangedStateList->DeleteKey("Idx:"+IntToStr(UserIdx), JID);
+	ChangedStateList->DeleteKey("Status:"+IntToStr(UserIdx), JID);
+	ChangedStateList->DeleteKey("State:"+IntToStr(UserIdx), JID);
 	//Zapisanie wyslanych danych
-	else
-	{
-		ChangedStateList->WriteString("Status", JID, EncodeBase64(Status));
-		ChangedStateList->WriteInteger("State", JID, State);
-	}
+	if((Status!=GetStatus(UserIdx))||(State!=GetState(UserIdx))) ChangedStateList->WriteBool("Idx:"+IntToStr(UserIdx), JID, true);
+	if(Status!=GetStatus(UserIdx)) ChangedStateList->WriteString("Status:"+IntToStr(UserIdx), JID, EncodeBase64(Status));
+	if(State!=GetState(UserIdx)) ChangedStateList->WriteInteger("State:"+IntToStr(UserIdx), JID, State);
 }
 //--------------------------------------------------------------------------
 
@@ -235,9 +231,11 @@ LRESULT CALLBACK TimerFrmProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam
 	{
 		//Zatrzymanie timera
 		KillTimer(hTimerFrm, wParam);
+		//Pobranie indeksu konta z ID timera
+		int UserIdx = wParam;
 		//Sprawdzanie czy zostaly wyslane jakies statusy kontaktom
 		TStringList *NewStatus = new TStringList;
-		ChangedStateList->ReadSection("Status", NewStatus);
+		ChangedStateList->ReadSection("Idx:"+IntToStr(UserIdx), NewStatus);
 		if(NewStatus->Count>0)
 		{
 			//Sprawdzanie zapisanych identyfikatorow kontaktow
@@ -247,7 +245,7 @@ LRESULT CALLBACK TimerFrmProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam
 				UnicodeString JID = NewStatus->Strings[Count];
 				//Wyslanie nowego statusu
 				if(!JID.IsEmpty())
-					SendXML(JID, wParam, DecodeBase64(ChangedStateList->ReadString("Status", JID, "")), ChangedStateList->ReadInteger("State", JID, 0));
+					SendXML(JID, UserIdx, DecodeBase64(ChangedStateList->ReadString("Status:"+IntToStr(UserIdx), JID, EncodeBase64(GetStatus(UserIdx)))), ChangedStateList->ReadInteger("State:"+IntToStr(UserIdx), JID, GetState(UserIdx)));
 			}
 		}
 		delete NewStatus;
@@ -339,9 +337,11 @@ INT_PTR __stdcall OnContactsUpdate(WPARAM wParam, LPARAM lParam)
 		TPluginContact ContactsUpdateContact = *(PPluginContact)wParam;
 		//Pobieranie identyfikatora kontatku
 		UnicodeString JID = (wchar_t*)ContactsUpdateContact.JID;
+		//Pobranie indeksu konta
+		int UserIdx = ContactsUpdateContact.UserIdx;
 		//Sprawdzanie czy dla kontatku zostal wyslany inny status
-		if(ChangedStateList->ValueExists("Status", JID))
-			SendXML(JID, ContactsUpdateContact.UserIdx, GetChangedStatus(ContactJID, ContactUserIdx), GetChangedState(ContactJID, ContactUserIdx));
+		if((ChangedStateList->ValueExists("Status:"+IntToStr(UserIdx), JID))||(ChangedStateList->ValueExists("State:"+IntToStr(UserIdx), JID)))
+			SendXML(JID, UserIdx, GetChangedStatus(JID, UserIdx), GetChangedState(JID, UserIdx));
 	}
 
 	return 0;
@@ -351,16 +351,16 @@ INT_PTR __stdcall OnContactsUpdate(WPARAM wParam, LPARAM lParam)
 //Notyfikacja zmiany stanu
 INT_PTR __stdcall OnStateChange(WPARAM wParam, LPARAM lParam)
 {
-	//Sprawdzanie czy zostaly wyslane jakies statusy kontaktom
+	//Pobranie danych dotyczacych konta
+	TPluginStateChange StateChange = *(PPluginStateChange)lParam;
+	//Pobranie indeksu konta
+	int UserIdx = StateChange.UserIdx;
+	//Sprawdzanie czy zostaly wyslane jakies statusy kontaktom z danego konta
 	TStringList *NewStatus = new TStringList;
-	ChangedStateList->ReadSection("Status", NewStatus);
+	ChangedStateList->ReadSection("Idx:"+IntToStr(UserIdx), NewStatus);
 	if(NewStatus->Count>0)
-	{
-		//Pobranie danych dotyczacych konta
-		TPluginStateChange StateChange = *(PPluginStateChange)lParam;
 		//Wlaczenie timera wysylania ustawionych statusow dla kontaktow
-		SetTimer(hTimerFrm, StateChange.UserIdx, 10, (TIMERPROC)TimerFrmProc);
-	}
+		SetTimer(hTimerFrm, UserIdx, 10, (TIMERPROC)TimerFrmProc);
 	delete NewStatus;
 
 	return 0;
@@ -370,6 +370,7 @@ INT_PTR __stdcall OnStateChange(WPARAM wParam, LPARAM lParam)
 //Hook na pokazywanie popupmenu
 INT_PTR __stdcall OnSystemPopUp(WPARAM wParam, LPARAM lParam)
 {
+	//Pobranie danych dotyczacych popupmenu
 	TPluginPopUp PopUp = *(PPluginPopUp)lParam;
 	//Pobieranie nazwy popupmenu
 	UnicodeString PopUpName = (wchar_t*)PopUp.Name;
@@ -394,10 +395,10 @@ INT_PTR __stdcall OnSystemPopUp(WPARAM wParam, LPARAM lParam)
 		{
 			//Zapisanie identyfikatora kontatku w zmiennej globalnej
 			ContactJID = JID;
-			//Pobieranie indeksu konta
+			//Zapisanie indeksu konta
 			ContactUserIdx = SystemPopUContact.UserIdx;
 			//Pokazanie przycisku w interfejsie
-			ChangeItemState(true, ChangedStateList->ValueExists("Status",  ContactJID));
+			ChangeItemState(true, ((ChangedStateList->ValueExists("Status:"+IntToStr(ContactUserIdx), ContactJID))||(ChangedStateList->ValueExists("State:"+IntToStr(ContactUserIdx), ContactJID))));
 		}
 		//Ukrycie przycisku z interfejsu
 		else
