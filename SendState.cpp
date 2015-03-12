@@ -585,7 +585,7 @@ extern "C" PPluginInfo __declspec(dllexport) __stdcall AQQPluginInfo(DWORD AQQVe
 	PluginInfo.cbSize = sizeof(TPluginInfo);
 	PluginInfo.ShortName = L"SendState";
 	PluginInfo.Version = PLUGIN_MAKE_VERSION(1,3,3,0);
-	PluginInfo.Description = L"Wtyczka s³u¿y do wysy³ania indywidualnego statusu kontaktom z sieci Jabber. Wystarczy wybraæ kontakt, klikn¹æ w pozycjê \"Wyœlij status\", wybraæ odpowiedni stan oraz zmieniæ opis i klikn¹æ w przycisk \"Wyœlij\".";
+	PluginInfo.Description = L"Umo¿liwia wysy³anie indywidualnego statusu kontaktom z sieci XMPP na czas trwania sesji.";
 	PluginInfo.Author = L"Krzysztof Grochocki";
 	PluginInfo.AuthorMail = L"kontakt@beherit.pl";
 	PluginInfo.Copyright = L"Krzysztof Grochocki";

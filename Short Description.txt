@@ -1,1 +1,4 @@
-Wtyczka s³u¿y do wysy³ania indywidualnego statusu kontaktom z sieci Jabber. Wystarczy wybraæ kontakt, klikn¹æ w pozycjê "Wyœlij status", wybraæ odpowiedni stan oraz zmieniæ opis i klikn¹æ w przycisk "Wyœlij".
+PL:
+Umo¿liwia wysy³anie indywidualnego statusu kontaktom z sieci XMPP na czas trwania sesji.
+EN:
+Allows to send individual status to contacts from XMPP networks for duration of the session.
