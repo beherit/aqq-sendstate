@@ -1,5 +1,5 @@
 # SendState
-SendState jest wtyczką do komunikatora [AQQ](http://www.aqq.eu/pl.php). Służy do wysyłania indywidualnego statusu kontaktom z sieci Jabber. Wystarczy wybrać kontakt, kliknąć w pozycję "Wyślij status", wybrać odpowiedni stan oraz zmienić opis i kliknąć w przycisk "Wyślij".
+SendState jest wtyczką do komunikatora [AQQ](http://www.aqq.eu/pl.php). Umożliwia wysyłanie indywidualnego statusu kontaktom z sieci XMPP na czas trwania sesji.
 
 ### Wymagania
 Do skompilowania wtyczki SendState potrzebne jest:
