@@ -1,3 +1,11 @@
+1.4.0.0
+-----
+* Pełne wsparcie kolorystyki stylizacji okien.
+* Obsługa lokalizacji (polskiej i angielskiej).
+* Prawidłowe działanie z wieloma kontami XMPP.
+* Inne kosmetyczne poprawki.
+* Aktualizacja komponentów AlphaControls do nowszej wersji (9.20).
+
 1.3.3.0
 -----
 * Poprawki w zapisywaniu w pamięci wysłanego opisu.
