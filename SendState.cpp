@@ -584,7 +584,7 @@ extern "C" PPluginInfo __declspec(dllexport) __stdcall AQQPluginInfo(DWORD AQQVe
 {
 	PluginInfo.cbSize = sizeof(TPluginInfo);
 	PluginInfo.ShortName = L"SendState";
-	PluginInfo.Version = PLUGIN_MAKE_VERSION(1,3,3,0);
+	PluginInfo.Version = PLUGIN_MAKE_VERSION(1,4,0,0);
 	PluginInfo.Description = L"Umo¿liwia wysy³anie indywidualnego statusu kontaktom z sieci XMPP na czas trwania sesji.";
 	PluginInfo.Author = L"Krzysztof Grochocki";
 	PluginInfo.AuthorMail = L"kontakt@beherit.pl";
